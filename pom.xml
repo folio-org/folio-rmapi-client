@@ -2,9 +2,14 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
-  <artifactId>folio-rmapi-client</artifactId>
+  <artifactId>folio-holdingsiq-client</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
+
+  <name>folio-holdingsiq-client</name>
+  <description>Client library to HoldingsIQ API</description>
+  <url>https://github.com/folio-org/folio-holdingsiq-client</url>
+  <inceptionYear>2019</inceptionYear>
 
   <licenses>
     <license>
@@ -16,11 +21,20 @@
   <properties>
     <vertx.version>3.5.4</vertx.version>
     <junit.version>4.12</junit.version>
-    <rest-assured.version>3.1.1</rest-assured.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>domain-models-runtime</artifactId>
+      <version>23.5.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>folio-di-support</artifactId>
+      <version>1.0.0</version>
+    </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-core</artifactId>
@@ -30,6 +44,22 @@
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web</artifactId>
       <version>${vertx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>mod-configuration-client</artifactId>
+      <version>4.0.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.projectlombok</groupId>
+      <artifactId>lombok</artifactId>
+      <version>1.18.6</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>2.9.1</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -46,7 +76,19 @@
     <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
-      <version>${rest-assured.version}</version>
+      <version>3.1.1</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.github.tomakehurst</groupId>
+      <artifactId>wiremock</artifactId>
+      <version>2.19.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <version>2.24.5</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -101,9 +143,9 @@
   </build>
 
   <scm>
-    <url>https://github.com/folio-org/folio-rmapi-client</url>
-    <connection>scm:git:git://github.com/folio-org/folio-rmapi-client</connection>
-    <developerConnection>scm:git:git@github.com:folio-org/folio-rmapi-client.git</developerConnection>
+    <url>https://github.com/folio-org/folio-holdingsiq-client</url>
+    <connection>scm:git:git://github.com/folio-org/folio-holdingsiq-client</connection>
+    <developerConnection>scm:git:git@github.com:folio-org/folio-holdingsiq-client.git</developerConnection>
     <tag>HEAD</tag>
   </scm>
 
