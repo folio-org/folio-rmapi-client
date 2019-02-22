@@ -1,8 +1,4 @@
-package org.folio.holdingsiq.service.result;
-
-import org.folio.holdingsiq.model.PackageByIdData;
-import org.folio.holdingsiq.model.Title;
-import org.folio.holdingsiq.model.VendorById;
+package org.folio.holdingsiq.model;
 
 public class ResourceResult {
   private Title title;

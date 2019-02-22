@@ -1,7 +1,4 @@
-package org.folio.holdingsiq.service.result;
-
-import org.folio.holdingsiq.model.Packages;
-import org.folio.holdingsiq.model.VendorById;
+package org.folio.holdingsiq.model;
 
 public class VendorResult {
   private VendorById vendor;
