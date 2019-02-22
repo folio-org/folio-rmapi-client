@@ -5,7 +5,7 @@ package org.folio.holdingsiq.service.exception;
  *
  */
 @SuppressWarnings("squid:MaximumInheritanceDepth")
-public class UnAuthorizedException extends RMAPIServiceException {
+public class UnAuthorizedException extends ServiceResponseException {
 
   private static final long serialVersionUID = 1L;
 

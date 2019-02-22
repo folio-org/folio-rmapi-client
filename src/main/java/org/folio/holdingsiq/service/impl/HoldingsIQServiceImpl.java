@@ -1,5 +1,6 @@
 package org.folio.holdingsiq.service.impl;
 
+import static java.lang.String.format;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
 import java.util.Collections;
@@ -40,9 +41,9 @@ import org.folio.holdingsiq.model.VendorById;
 import org.folio.holdingsiq.model.VendorPut;
 import org.folio.holdingsiq.model.Vendors;
 import org.folio.holdingsiq.service.HoldingsIQService;
-import org.folio.holdingsiq.service.exception.RMAPIServiceException;
 import org.folio.holdingsiq.service.exception.ResourceNotFoundException;
 import org.folio.holdingsiq.service.exception.ResultsProcessingException;
+import org.folio.holdingsiq.service.exception.ServiceResponseException;
 import org.folio.holdingsiq.service.exception.UnAuthorizedException;
 import org.folio.holdingsiq.service.impl.urlbuilder.PackagesFilterableUrlBuilder;
 import org.folio.holdingsiq.service.impl.urlbuilder.QueriableUrlBuilder;
@@ -51,7 +52,7 @@ import org.folio.holdingsiq.service.result.PackageResult;
 import org.folio.holdingsiq.service.result.ResourceResult;
 import org.folio.holdingsiq.service.result.VendorResult;
 
-// to split into resource oriented services (Providers/Titles/...)
+// to split into resource oriented (Providers/Titles/...) services
 public class HoldingsIQServiceImpl implements HoldingsIQService {
 
   private static final Logger LOG = LoggerFactory.getLogger(HoldingsIQServiceImpl.class);
@@ -105,14 +106,14 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
 
     if (response.statusCode() == 404) {
       future.completeExceptionally(new ResourceNotFoundException(
-        String.format("Requested resource %s not found", query), response.statusCode(), response.statusMessage(), msgBody, query));
+        format("Requested resource %s not found", query), response.statusCode(), response.statusMessage(), msgBody, query));
     } else if ((response.statusCode() == 401) || (response.statusCode() == 403)) {
       future.completeExceptionally(new UnAuthorizedException(
-        String.format("Unauthorized Access to %s", query), response.statusCode(), response.statusMessage(), msgBody, query));
+        format("Unauthorized Access to %s", query), response.statusCode(), response.statusMessage(), msgBody, query));
     } else {
 
-      future.completeExceptionally(new RMAPIServiceException(
-        String.format("%s Code = %s Message = %s Body = %s", INVALID_RMAPI_RESPONSE, response.statusCode(),
+      future.completeExceptionally(new ServiceResponseException(
+        format("%s Code = %s Message = %s Body = %s", INVALID_RMAPI_RESPONSE, response.statusCode(),
           response.statusMessage(), body.toString()),
         response.statusCode(), response.statusMessage(), msgBody, query));
     }
@@ -194,14 +195,14 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
         } catch (Exception e) {
           LOG.error("{} - Response = [{}] Target Type = [{}] Cause: [{}]",
                 JSON_RESPONSE_ERROR, body.toString(), clazz, e.getMessage());
-            future.completeExceptionally(
-              new ResultsProcessingException(String.format("%s for query = %s", JSON_RESPONSE_ERROR, query), e));
-          }
-        } else {
-
-          handleRMAPIError(response, query, body, future);
+          future.completeExceptionally(
+              new ResultsProcessingException(format("%s for query = %s", JSON_RESPONSE_ERROR, query), e));
         }
-      })).exceptionHandler(future::completeExceptionally);
+      } else {
+
+        handleRMAPIError(response, query, body, future);
+      }
+    })).exceptionHandler(future::completeExceptionally);
   }
 
   private void addRequestHeaders(HttpClientRequest request) {
@@ -375,6 +376,7 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
   public CompletableFuture<RootProxyCustomLabels> updateRootProxyCustomLabels(RootProxyCustomLabels rootProxyCustomLabels) {
     final String path = "";
 
+    // below convertion from rootProxyPutRequest to rootProxyCustomLabels has to be inside a Converter implementation
     /*Proxy.ProxyBuilder pb = Proxy.builder();
     pb.id(rootProxyPutRequest.getData().getAttributes().getProxyTypeId());
 
@@ -401,7 +403,7 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
     CompletableFuture<PackageByIdData> packageFuture;
     CompletableFuture<VendorResult> vendorFuture;
 
-    final String path = String.format(RESOURCE_ENDPOINT_FORMAT, resourceId.getProviderIdPart(), resourceId.getPackageIdPart(), resourceId.getTitleIdPart());
+    final String path = format(RESOURCE_ENDPOINT_FORMAT, resourceId.getProviderIdPart(), resourceId.getPackageIdPart(), resourceId.getTitleIdPart());
     titleFuture = this.getRequest(constructURL(path), Title.class);
     if (includes.contains(INCLUDE_PROVIDER_VALUE)) {
       vendorFuture = retrieveProvider(resourceId.getProviderIdPart(), "");
@@ -425,7 +427,7 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
 
   @Override
   public CompletableFuture<ResourceResult> postResource(ResourceSelectedPayload resourcePost, ResourceId resourceId) {
-    final String path = String.format(RESOURCE_ENDPOINT_FORMAT, resourceId.getProviderIdPart(), resourceId.getPackageIdPart(), resourceId.getTitleIdPart());
+    final String path = format(RESOURCE_ENDPOINT_FORMAT, resourceId.getProviderIdPart(), resourceId.getPackageIdPart(), resourceId.getTitleIdPart());
     return this.putRequest(constructURL(path), resourcePost)
       .thenCompose(o -> this.retrieveResource(resourceId, Collections.emptyList()));
   }
@@ -458,7 +460,7 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
    *          path appended to the end of url
    */
   private String constructURL(String path) {
-    String fullPath = String.format("%s/rm/rmaccounts/%s/%s", baseURI, customerId, path);
+    String fullPath = format("%s/rm/rmaccounts/%s/%s", baseURI, customerId, path);
 
     LOG.info("constructurl - path=" + fullPath);
     return fullPath;

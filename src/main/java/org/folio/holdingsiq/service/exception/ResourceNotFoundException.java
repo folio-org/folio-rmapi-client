@@ -5,7 +5,7 @@ package org.folio.holdingsiq.service.exception;
  *
  */
 @SuppressWarnings("squid:MaximumInheritanceDepth")
-public class ResourceNotFoundException extends RMAPIServiceException {
+public class ResourceNotFoundException extends ServiceResponseException {
 
   private static final long serialVersionUID = 1L;
 
