@@ -9,10 +9,12 @@ import org.folio.holdingsiq.model.PackageByIdData;
 import org.folio.holdingsiq.model.PackageId;
 import org.folio.holdingsiq.model.PackagePost;
 import org.folio.holdingsiq.model.PackagePut;
+import org.folio.holdingsiq.model.PackageResult;
 import org.folio.holdingsiq.model.Packages;
 import org.folio.holdingsiq.model.Proxies;
 import org.folio.holdingsiq.model.ResourceId;
 import org.folio.holdingsiq.model.ResourcePut;
+import org.folio.holdingsiq.model.ResourceResult;
 import org.folio.holdingsiq.model.ResourceSelectedPayload;
 import org.folio.holdingsiq.model.RootProxyCustomLabels;
 import org.folio.holdingsiq.model.Sort;
@@ -21,10 +23,8 @@ import org.folio.holdingsiq.model.TitlePost;
 import org.folio.holdingsiq.model.Titles;
 import org.folio.holdingsiq.model.VendorById;
 import org.folio.holdingsiq.model.VendorPut;
+import org.folio.holdingsiq.model.VendorResult;
 import org.folio.holdingsiq.model.Vendors;
-import org.folio.holdingsiq.service.result.PackageResult;
-import org.folio.holdingsiq.service.result.ResourceResult;
-import org.folio.holdingsiq.service.result.VendorResult;
 
 public interface HoldingsIQService {
 

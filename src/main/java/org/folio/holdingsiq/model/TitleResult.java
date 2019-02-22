@@ -1,6 +1,4 @@
-package org.folio.holdingsiq.service.result;
-
-import org.folio.holdingsiq.model.Title;
+package org.folio.holdingsiq.model;
 
 public class TitleResult {
   private Title title;
