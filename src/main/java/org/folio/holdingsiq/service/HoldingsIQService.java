@@ -66,4 +66,7 @@ public interface HoldingsIQService {
 
   CompletableFuture<Void> deleteResource(ResourceId parsedResourceId);
 
+  CompletableFuture<VendorById> retrieveProvider(long id);
+
+  CompletableFuture<Title> retrieveResource(ResourceId resourceId);
 }

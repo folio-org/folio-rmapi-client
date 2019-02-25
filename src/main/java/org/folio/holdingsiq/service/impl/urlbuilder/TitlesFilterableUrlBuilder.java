@@ -79,7 +79,7 @@ public class TitlesFilterableUrlBuilder {
     parameters.add("resourcetype=" + resourceType);
     parameters.add("searchtype=advanced");
 
-    String query = new QueriableUrlBuilder()
+    String query = new QueryableUrlBuilder()
       .q(search)
       .page(page)
       .count(count)

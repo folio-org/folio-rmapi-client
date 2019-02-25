@@ -63,7 +63,7 @@ public class PackagesFilterableUrlBuilder {
 
     parameters.add("selection=" + selection);
     parameters.add("contenttype=" + contentType);
-    String query = new QueriableUrlBuilder()
+    String query = new QueryableUrlBuilder()
       .q(q)
       .page(page)
       .count(count)
