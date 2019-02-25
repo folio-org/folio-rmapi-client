@@ -3,8 +3,6 @@ package org.folio.holdingsiq.service.impl;
 import static java.lang.String.format;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 
-import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -24,14 +22,12 @@ import org.folio.holdingsiq.model.PackageCreated;
 import org.folio.holdingsiq.model.PackageId;
 import org.folio.holdingsiq.model.PackagePost;
 import org.folio.holdingsiq.model.PackagePut;
-import org.folio.holdingsiq.model.PackageResult;
 import org.folio.holdingsiq.model.PackageSelectedPayload;
 import org.folio.holdingsiq.model.Packages;
 import org.folio.holdingsiq.model.Proxies;
 import org.folio.holdingsiq.model.ResourceDeletePayload;
 import org.folio.holdingsiq.model.ResourceId;
 import org.folio.holdingsiq.model.ResourcePut;
-import org.folio.holdingsiq.model.ResourceResult;
 import org.folio.holdingsiq.model.ResourceSelectedPayload;
 import org.folio.holdingsiq.model.RootProxyCustomLabels;
 import org.folio.holdingsiq.model.Sort;
@@ -41,7 +37,6 @@ import org.folio.holdingsiq.model.TitlePost;
 import org.folio.holdingsiq.model.Titles;
 import org.folio.holdingsiq.model.VendorById;
 import org.folio.holdingsiq.model.VendorPut;
-import org.folio.holdingsiq.model.VendorResult;
 import org.folio.holdingsiq.model.Vendors;
 import org.folio.holdingsiq.service.HoldingsIQService;
 import org.folio.holdingsiq.service.exception.ResourceNotFoundException;
@@ -74,11 +69,6 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
   private static final String PROVIDER_LOWER_STRING = "provider";
   private static final String VENDOR_UPPER_STRING = "Vendor";
   private static final String PROVIDER_UPPER_STRING = "Provider";
-  private static final String INCLUDE_PACKAGES_VALUE = "packages";
-
-  private static final String INCLUDE_PROVIDER_VALUE = "provider";
-  private static final String INCLUDE_PACKAGE_VALUE = "package";
-  private static final String INCLUDE_RESOURCES_VALUE = "resources";
 
   private static final String RESOURCE_ENDPOINT_FORMAT = "vendors/%s/packages/%s/titles/%s";
 
@@ -293,54 +283,11 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
   }
 
   @Override
-  public CompletableFuture<VendorResult> retrieveProvider(long id, String include) {
-    final String path = VENDORS_PATH + '/' + id;
-
-    CompletableFuture<VendorById> vendorFuture;
-    CompletableFuture<Packages> packagesFuture;
-
-    vendorFuture = this.getRequest(constructURL(path), VendorById.class);
-    if (INCLUDE_PACKAGES_VALUE.equalsIgnoreCase(include)) {
-      packagesFuture = retrievePackages(id);
-    } else {
-      packagesFuture = completedFuture(null);
-    }
-    return CompletableFuture.allOf(vendorFuture, packagesFuture)
-      .thenCompose(o ->
-        completedFuture(new VendorResult(vendorFuture.join(), packagesFuture.join())));
-  }
-
-  @Override
   public CompletableFuture<VendorById> updateProvider(long id, VendorPut rmapiVendor) {
     final String path = VENDORS_PATH + '/' + id;
 
     return this.putRequest(constructURL(path), rmapiVendor)
-      .thenCompose(vend -> this.retrieveProvider(id, ""))
-      .thenCompose(vendorResult -> completedFuture(vendorResult.getVendor()));
-  }
-
-  @Override
-  public CompletableFuture<PackageResult> retrievePackage(PackageId packageId, List<String> includedObjects) {
-    CompletableFuture<PackageByIdData> packageFuture = retrievePackage(packageId);
-
-    CompletableFuture<Titles> titlesFuture;
-    if (includedObjects.contains(INCLUDE_RESOURCES_VALUE)) {
-      titlesFuture = retrieveTitles(packageId.getProviderIdPart(), packageId.getPackageIdPart(), FilterQuery.builder().build(),
-        Sort.NAME, 1, 25);
-    } else {
-      titlesFuture = completedFuture(null);
-    }
-
-    CompletableFuture<VendorResult> vendorFuture;
-    if (includedObjects.contains(INCLUDE_PROVIDER_VALUE)) {
-      vendorFuture = retrieveProvider(packageId.getProviderIdPart(), null);
-    } else {
-      vendorFuture = completedFuture(new VendorResult(null, null));
-    }
-
-    return CompletableFuture.allOf(packageFuture, titlesFuture, vendorFuture)
-      .thenCompose(o ->
-        completedFuture(new PackageResult(packageFuture.join(), vendorFuture.join().getVendor(), titlesFuture.join())));
+      .thenCompose(vend -> this.retrieveProvider(id));
   }
 
   @Override
@@ -397,39 +344,12 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
     return this.getRequest(constructURL(path), Title.class);
   }
 
-  @Override
-  public CompletableFuture<ResourceResult> retrieveResource(ResourceId resourceId, List<String> includes) {
-    CompletableFuture<Title> titleFuture;
-    CompletableFuture<PackageByIdData> packageFuture;
-    CompletableFuture<VendorResult> vendorFuture;
-
-    final String path = format(RESOURCE_ENDPOINT_FORMAT, resourceId.getProviderIdPart(), resourceId.getPackageIdPart(), resourceId.getTitleIdPart());
-    titleFuture = this.getRequest(constructURL(path), Title.class);
-    if (includes.contains(INCLUDE_PROVIDER_VALUE)) {
-      vendorFuture = retrieveProvider(resourceId.getProviderIdPart(), "");
-    } else {
-      vendorFuture = completedFuture(new VendorResult(null, null));
-    }
-    if (includes.contains(INCLUDE_PACKAGE_VALUE)) {
-      PackageId id = PackageId.builder()
-          .providerIdPart(resourceId.getProviderIdPart())
-          .packageIdPart(resourceId.getPackageIdPart()).build();
-      packageFuture = retrievePackage(id);
-    } else {
-      packageFuture = completedFuture(null);
-    }
-    boolean includeTitle = includes.contains("title");
-
-    return CompletableFuture.allOf(titleFuture, vendorFuture, packageFuture)
-      .thenCompose(o ->
-        completedFuture(new ResourceResult(titleFuture.join(), vendorFuture.join().getVendor(), packageFuture.join(), includeTitle)));
-  }
 
   @Override
-  public CompletableFuture<ResourceResult> postResource(ResourceSelectedPayload resourcePost, ResourceId resourceId) {
+  public CompletableFuture<Title> postResource(ResourceSelectedPayload resourcePost, ResourceId resourceId) {
     final String path = format(RESOURCE_ENDPOINT_FORMAT, resourceId.getProviderIdPart(), resourceId.getPackageIdPart(), resourceId.getTitleIdPart());
     return this.putRequest(constructURL(path), resourcePost)
-      .thenCompose(o -> this.retrieveResource(resourceId, Collections.emptyList()));
+      .thenCompose(o -> this.retrieveResource(resourceId));
   }
 
   @Override
@@ -476,5 +396,19 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
   public CompletableFuture<Void> deleteResource(ResourceId parsedResourceId) {
     final String path = VENDORS_PATH + '/' + parsedResourceId.getProviderIdPart() + '/' + PACKAGES_PATH + '/' + parsedResourceId.getPackageIdPart() + '/' + TITLES_PATH + '/' + parsedResourceId.getTitleIdPart();
     return this.putRequest(constructURL(path), new ResourceDeletePayload(false));
+  }
+
+  private CompletableFuture<VendorById> retrieveProvider(long id) {
+    CompletableFuture<VendorById> vendorFuture;
+    final String path = VENDORS_PATH + '/' + id;
+    vendorFuture = this.getRequest(constructURL(path), VendorById.class);
+    return vendorFuture;
+  }
+
+  private CompletableFuture<Title> retrieveResource(ResourceId resourceId) {
+    CompletableFuture<Title> titleFuture;
+    final String path = format(RESOURCE_ENDPOINT_FORMAT, resourceId.getProviderIdPart(), resourceId.getPackageIdPart(), resourceId.getTitleIdPart());
+    titleFuture = this.getRequest(constructURL(path), Title.class);
+    return titleFuture;
   }
 }
