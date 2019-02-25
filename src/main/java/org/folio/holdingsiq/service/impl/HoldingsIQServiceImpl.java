@@ -44,7 +44,7 @@ import org.folio.holdingsiq.service.exception.ResultsProcessingException;
 import org.folio.holdingsiq.service.exception.ServiceResponseException;
 import org.folio.holdingsiq.service.exception.UnAuthorizedException;
 import org.folio.holdingsiq.service.impl.urlbuilder.PackagesFilterableUrlBuilder;
-import org.folio.holdingsiq.service.impl.urlbuilder.QueriableUrlBuilder;
+import org.folio.holdingsiq.service.impl.urlbuilder.QueryableUrlBuilder;
 import org.folio.holdingsiq.service.impl.urlbuilder.TitlesFilterableUrlBuilder;
 
 // to split into resource oriented (Providers/Titles/...) services
@@ -208,7 +208,7 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
 
   @Override
   public CompletableFuture<Vendors> retrieveProviders(String q, int page, int count, Sort sort) {
-    String query = new QueriableUrlBuilder()
+    String query = new QueryableUrlBuilder()
         .q(q)
         .page(page)
         .count(count)
@@ -280,6 +280,14 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
     return retrieveRootProxyCustomLabels()
       .thenCompose(rootProxyCustomLabels ->
         CompletableFuture.completedFuture(Long.parseLong(rootProxyCustomLabels.getVendorId())));
+  }
+
+  @Override
+  public CompletableFuture<VendorById> retrieveProvider(long id) {
+    CompletableFuture<VendorById> vendorFuture;
+    final String path = VENDORS_PATH + '/' + id;
+    vendorFuture = this.getRequest(constructURL(path), VendorById.class);
+    return vendorFuture;
   }
 
   @Override
@@ -398,14 +406,8 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
     return this.putRequest(constructURL(path), new ResourceDeletePayload(false));
   }
 
-  private CompletableFuture<VendorById> retrieveProvider(long id) {
-    CompletableFuture<VendorById> vendorFuture;
-    final String path = VENDORS_PATH + '/' + id;
-    vendorFuture = this.getRequest(constructURL(path), VendorById.class);
-    return vendorFuture;
-  }
-
-  private CompletableFuture<Title> retrieveResource(ResourceId resourceId) {
+  @Override
+  public CompletableFuture<Title> retrieveResource(ResourceId resourceId) {
     CompletableFuture<Title> titleFuture;
     final String path = format(RESOURCE_ENDPOINT_FORMAT, resourceId.getProviderIdPart(), resourceId.getPackageIdPart(), resourceId.getTitleIdPart());
     titleFuture = this.getRequest(constructURL(path), Title.class);

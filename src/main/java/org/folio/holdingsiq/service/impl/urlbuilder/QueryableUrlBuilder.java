@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import org.folio.holdingsiq.model.Sort;
 
-public class QueriableUrlBuilder {
+public class QueryableUrlBuilder {
   private static final String RELEVANCE_PARAMETER = "relevance";
   private String q;
   private int page = 1;
@@ -17,27 +17,27 @@ public class QueriableUrlBuilder {
   private Sort sort;
   private String nameParameter;
 
-  public QueriableUrlBuilder q(String q) {
+  public QueryableUrlBuilder q(String q) {
     this.q = q;
     return this;
   }
 
-  public QueriableUrlBuilder page(int page) {
+  public QueryableUrlBuilder page(int page) {
     this.page = page;
     return this;
   }
 
-  public QueriableUrlBuilder count(int count) {
+  public QueryableUrlBuilder count(int count) {
     this.count = count;
     return this;
   }
 
-  public QueriableUrlBuilder sort(Sort sort) {
+  public QueryableUrlBuilder sort(Sort sort) {
     this.sort = sort;
     return this;
   }
 
-  public QueriableUrlBuilder nameParameter(String nameParameter) {
+  public QueryableUrlBuilder nameParameter(String nameParameter) {
     this.nameParameter = nameParameter;
     return this;
   }
