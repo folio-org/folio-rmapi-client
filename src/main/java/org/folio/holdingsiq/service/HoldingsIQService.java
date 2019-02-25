@@ -1,6 +1,5 @@
 package org.folio.holdingsiq.service;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -9,12 +8,10 @@ import org.folio.holdingsiq.model.PackageByIdData;
 import org.folio.holdingsiq.model.PackageId;
 import org.folio.holdingsiq.model.PackagePost;
 import org.folio.holdingsiq.model.PackagePut;
-import org.folio.holdingsiq.model.PackageResult;
 import org.folio.holdingsiq.model.Packages;
 import org.folio.holdingsiq.model.Proxies;
 import org.folio.holdingsiq.model.ResourceId;
 import org.folio.holdingsiq.model.ResourcePut;
-import org.folio.holdingsiq.model.ResourceResult;
 import org.folio.holdingsiq.model.ResourceSelectedPayload;
 import org.folio.holdingsiq.model.RootProxyCustomLabels;
 import org.folio.holdingsiq.model.Sort;
@@ -23,7 +20,6 @@ import org.folio.holdingsiq.model.TitlePost;
 import org.folio.holdingsiq.model.Titles;
 import org.folio.holdingsiq.model.VendorById;
 import org.folio.holdingsiq.model.VendorPut;
-import org.folio.holdingsiq.model.VendorResult;
 import org.folio.holdingsiq.model.Vendors;
 
 public interface HoldingsIQService {
@@ -44,11 +40,7 @@ public interface HoldingsIQService {
 
   CompletableFuture<Long> getVendorId();
 
-  CompletableFuture<VendorResult> retrieveProvider(long id, String include);
-
   CompletableFuture<VendorById> updateProvider(long id, VendorPut rmapiVendor);
-
-  CompletableFuture<PackageResult> retrievePackage(PackageId packageId, List<String> includedObjects);
 
   CompletableFuture<PackageByIdData> retrievePackage(PackageId packageId);
 
@@ -64,9 +56,7 @@ public interface HoldingsIQService {
 
   CompletableFuture<Title> retrieveTitle(long id);
 
-  CompletableFuture<ResourceResult> retrieveResource(ResourceId resourceId, List<String> includes);
-
-  CompletableFuture<ResourceResult> postResource(ResourceSelectedPayload resourcePost, ResourceId resourceId);
+  CompletableFuture<Title> postResource(ResourceSelectedPayload resourcePost, ResourceId resourceId);
 
   CompletableFuture<PackageByIdData> postPackage(PackagePost entity, Long vendorId);
 
