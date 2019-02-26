@@ -13,14 +13,7 @@ import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
-import org.apache.http.HttpStatus;
-import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.stubbing.Answer;
-
 import com.google.common.io.Files;
-
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -29,6 +22,13 @@ import io.vertx.core.http.CaseInsensitiveHeaders;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpClientResponse;
+import org.apache.http.HttpStatus;
+import org.junit.Before;
+import org.junit.Test;
+import org.mockito.ArgumentCaptor;
+import org.mockito.stubbing.Answer;
+
+import org.folio.holdingsiq.service.HoldingsIQService;
 
 public class HoldingsIQServiceImplTest {
   private static final String STUB_CUSTOMER_ID = "TEST_CUSTOMER_ID";
@@ -41,7 +41,9 @@ public class HoldingsIQServiceImplTest {
   private HttpClientResponse mockResponse = mock(HttpClientResponse.class);
   private Buffer mockResponseBody = mock(Buffer.class);
   private MultiMap stubHeaderMap = new CaseInsensitiveHeaders();
-  private HoldingsIQServiceImpl service = new HoldingsIQServiceImpl(STUB_CUSTOMER_ID, STUB_API_KEY, STUB_BASE_URL, mockVertx);
+  private HoldingsIQService holdingsIQService = new HoldingsIQServiceImpl(STUB_CUSTOMER_ID, STUB_API_KEY, STUB_BASE_URL, mockVertx);
+  private ProviderHoldingsIQServiceImpl service = new ProviderHoldingsIQServiceImpl(STUB_CUSTOMER_ID, STUB_API_KEY, STUB_BASE_URL, mockVertx);
+
   private ArgumentCaptor<String> url = ArgumentCaptor.forClass(String.class);
 
   @SuppressWarnings("unchecked")
@@ -49,6 +51,7 @@ public class HoldingsIQServiceImplTest {
   public void setUp() {
     ArgumentCaptor<Handler<HttpClientResponse>> requestHandler = ArgumentCaptor.forClass(Handler.class);
     ArgumentCaptor<Handler<Throwable>> exceptionHandler = ArgumentCaptor.forClass(Handler.class);
+    service.setHoldingsIQService(holdingsIQService);
 
     when(mockVertx.createHttpClient()).thenReturn(mockClient);
     when(mockClient.getAbs(url.capture())).thenReturn(mockRequest);
