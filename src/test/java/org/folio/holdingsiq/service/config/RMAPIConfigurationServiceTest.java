@@ -1,4 +1,4 @@
-package org.folio.holdingsiq.config;
+package org.folio.holdingsiq.service.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableMap;

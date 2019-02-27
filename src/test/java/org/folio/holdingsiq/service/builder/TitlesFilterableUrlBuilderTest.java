@@ -1,4 +1,4 @@
-package org.folio.holdingsiq.builder;
+package org.folio.holdingsiq.service.builder;
 
 import org.folio.holdingsiq.model.FilterQuery;
 import org.folio.holdingsiq.model.Sort;
