@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -58,6 +57,10 @@ public class HoldingsIQServiceImplTest {
   private PackagePost packagePost = PackagePost.builder().build();
   private TitlePost titlePost = TitlePost.builder().build();
 
+  private TitleCreated titleCreated = TitleCreated.builder().titleId(TITLE_ID).build();
+  private PackageCreated packageCreated = PackageCreated.builder().packageId(PACKAGE_ID).build();
+  private Titles titles = Titles.builder().titleList(Collections.emptyList()).build();
+  private RootProxyCustomLabels rootProxyCustomLabels = RootProxyCustomLabels.builder().vendorId(String.valueOf(VENDOR_ID)).build();
   private PackageId packageId = PackageId.builder().providerIdPart(VENDOR_ID).packageIdPart(PACKAGE_ID).build();
   private ResourceId resourceId = ResourceId.builder().providerIdPart(VENDOR_ID)
     .packageIdPart(PACKAGE_ID).titleIdPart(TITLE_ID).build();
@@ -98,18 +101,20 @@ public class HoldingsIQServiceImplTest {
     mockResponse("{}", HttpStatus.SC_OK);
     CompletableFuture<Object> completableFuture = service.verifyCredentials();
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors?search=zz12&offset=1&orderby=vendorname&count=1", url.getValue());
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/vendors?search=zz12&offset=1&orderby=vendorname&count=1");
   }
 
   @Test
-  public void testGetVendorId() {
+  public void testGetVendorId() throws IOException {
     mockResponse("{}", HttpStatus.SC_OK);
+    when(Json.mapper.readValue(anyString(), any(Class.class))).thenReturn(rootProxyCustomLabels);
+
     CompletableFuture<Long> completableFuture = service.getVendorId();
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/", url.getValue());
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/");
   }
 
   @Test
@@ -118,27 +123,27 @@ public class HoldingsIQServiceImplTest {
     CompletableFuture<Vendors> completableFuture = service.retrieveProviders("Busket", PAGE_FOR_PARAM,
       COUNT_FOR_PARAM, Sort.NAME);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors?search=Busket&offset=1&count=5&orderby=vendorname", url.getValue());
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/vendors?search=Busket&offset=1&count=5&orderby=vendorname");
   }
 
   @Test
-  public void testRetrieveVendorsCheckError404() {
+  public void testRetrieveVendorsCompleteExceptionallyWhenRequestWithError404() {
     mockResponse("{}", HttpStatus.SC_NOT_FOUND, "Error 404. Not faund");
     CompletableFuture<Vendors> future = service.retrieveProviders("Busket", PAGE_FOR_PARAM, COUNT_FOR_PARAM, Sort.NAME);
     assertTrue(future.isCompletedExceptionally());
   }
 
   @Test
-  public void testRetrieveVendorsCheckError401() {
+  public void testRetrieveVendorsCompleteExceptionallyWhenRequestWithError401() {
     mockResponse("{}", HttpStatus.SC_UNAUTHORIZED, "Error 401 unauthorized");
     CompletableFuture<Vendors> future = service.retrieveProviders("Busket", PAGE_FOR_PARAM, COUNT_FOR_PARAM, Sort.NAME);
     assertTrue(future.isCompletedExceptionally());
   }
 
   @Test
-  public void testRetrieveVendorsCheckErrorProcessingResponse() {
+  public void testRetrieveVendorsCompleteExceptionallyWhenThrowServiceException() {
     mockResponse("{}", HttpStatus.SC_OK);
     when(Json.decodeValue(anyString(), any(Class.class))).thenThrow(ServiceException.class);
 
@@ -150,31 +155,29 @@ public class HoldingsIQServiceImplTest {
   @Test
   public void testRetrieveTitles() throws IOException {
     mockResponse("{}", HttpStatus.SC_OK);
-    when(Json.mapper.readValue(anyString(), any(Class.class))).thenReturn(Titles.builder()
-      .titleList(Collections.emptyList()).build());
+    when(Json.mapper.readValue(anyString(), any(Class.class))).thenReturn(titles);
 
     CompletableFuture<Titles> completableFuture = service.retrieveTitles(fqb.build(), Sort.NAME,
       PAGE_FOR_PARAM, COUNT_FOR_PARAM);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
       + "/titles?searchfield=titlename&selection=all&resourcetype=all&searchtype=" +
-      "advanced&search=&offset=1&count=5&orderby=titlename", url.getValue());
+      "advanced&search=&offset=1&count=5&orderby=titlename");
   }
 
   @Test
   public void testRetrieveTitlesWithVendorId() throws IOException {
     mockResponse("{}", HttpStatus.SC_OK);
-    when(Json.mapper.readValue(anyString(), any(Class.class))).thenReturn(Titles.builder()
-      .titleList(Collections.emptyList()).build());
+    when(Json.mapper.readValue(anyString(), any(Class.class))).thenReturn(titles);
 
     CompletableFuture<Titles> completableFuture = service.retrieveTitles(VENDOR_ID, PACKAGE_ID, fqb.build(),
       Sort.NAME, PAGE_FOR_PARAM, COUNT_FOR_PARAM);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
       + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID + "/titles?searchfield=titlename&selection=all" +
-      "&resourcetype=all&searchtype=advanced&search=&offset=1&count=5&orderby=titlename", url.getValue());
+      "&resourcetype=all&searchtype=advanced&search=&offset=1&count=5&orderby=titlename");
   }
 
   @Test
@@ -183,10 +186,10 @@ public class HoldingsIQServiceImplTest {
     CompletableFuture<Packages> completableFuture = service.retrievePackages("ebsco",
       "filterType", VENDOR_ID, "Query", PAGE_FOR_PARAM, COUNT_FOR_PARAM, Sort.NAME);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
       + "/vendors/" + VENDOR_ID + "/packages?selection=orderedthroughebsco&contenttype=filterType&search=" +
-      "Query&offset=1&count=5&orderby=packagename", url.getValue());
+      "Query&offset=1&count=5&orderby=packagename");
   }
 
   @Test
@@ -194,10 +197,10 @@ public class HoldingsIQServiceImplTest {
     mockResponse("{}", HttpStatus.SC_OK);
     CompletableFuture<Packages> completableFuture = service.retrievePackages(VENDOR_ID);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
       + "/vendors/" + VENDOR_ID + "/packages?selection=all&contenttype=all&search=&offset=1"
-      + "&count=25&orderby=packagename", url.getValue());
+      + "&count=25&orderby=packagename");
   }
 
   @Test
@@ -205,19 +208,19 @@ public class HoldingsIQServiceImplTest {
     mockResponseForUpdateAndCreate("{}", HttpStatus.SC_NO_CONTENT, HttpStatus.SC_OK);
     CompletableFuture<VendorById> completableFuture = service.updateProvider(VENDOR_ID, vendorPut);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID, url.getValue());
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).putAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/vendors/" + VENDOR_ID);
   }
 
   @Test
   public void testRetrievePackage() {
-    mockResponse(null, HttpStatus.SC_OK);
+    mockResponse("{}", HttpStatus.SC_OK);
     CompletableFuture<PackageByIdData> completableFuture = service.retrievePackage(packageId);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID, url.getValue());
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID);
   }
 
   @Test
@@ -225,18 +228,18 @@ public class HoldingsIQServiceImplTest {
     mockResponseForUpdateAndCreate("{}", HttpStatus.SC_NO_CONTENT, HttpStatus.SC_OK);
     service.updatePackage(packageId, PackagePut.builder().build());
 
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID, url.getValue());
+    verify(mockClient).putAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID);
   }
 
   @Test
   public void testDeletePackage() {
-    mockResponse("{}", HttpStatus.SC_OK);
+    mockResponse("{}", HttpStatus.SC_NO_CONTENT);
     CompletableFuture<Void> completableFuture = service.deletePackage(packageId);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID, url.getValue());
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).putAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID);
   }
 
   @Test
@@ -244,9 +247,9 @@ public class HoldingsIQServiceImplTest {
     mockResponse("{}", HttpStatus.SC_OK);
     CompletableFuture<Proxies> completableFuture = service.retrieveProxies();
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/proxies", url.getValue());
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/proxies");
   }
 
   @Test
@@ -254,11 +257,11 @@ public class HoldingsIQServiceImplTest {
     mockResponseForUpdateAndCreate("{}", HttpStatus.SC_NO_CONTENT, HttpStatus.SC_OK);
 
     CompletableFuture<RootProxyCustomLabels> completableFuture =
-      service.updateRootProxyCustomLabels(RootProxyCustomLabels.builder().build());
+      service.updateRootProxyCustomLabels(rootProxyCustomLabels);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/", url.getValue());
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).putAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/");
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/");
   }
 
   @Test
@@ -266,9 +269,9 @@ public class HoldingsIQServiceImplTest {
     mockResponse("{}", HttpStatus.SC_OK);
     CompletableFuture<Title> completableFuture = service.retrieveTitle(TITLE_ID);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/titles/" + TITLE_ID, url.getValue());
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/titles/" + TITLE_ID);
   }
 
   @Test
@@ -279,30 +282,39 @@ public class HoldingsIQServiceImplTest {
 
     CompletableFuture<Title> completableFuture = service.postResource(resourceSelectedPayload, resourceId);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID + "/titles/" + TITLE_ID, url.getValue());
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).putAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID + "/titles/" + TITLE_ID);
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID + "/titles/" + TITLE_ID);
   }
 
   @Test
-  public void testPostPackage() {
+  public void testPostPackage() throws IOException {
     mockResponse("{}", HttpStatus.SC_OK);
+
+    when(Json.mapper.readValue(anyString(), any(Class.class))).thenReturn(packageCreated);
     CompletableFuture<PackageByIdData> completableFuture = service.postPackage(packagePost, VENDOR_ID);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages", url.getValue());
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).postAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/vendors/" + VENDOR_ID + "/packages");
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID);
   }
 
   @Test
-  public void testPostTitle() {
-    mockResponseForUpdateAndCreate("{}", HttpStatus.SC_NO_CONTENT, HttpStatus.SC_OK);
+  public void testPostTitle() throws IOException {
+    mockResponseForUpdateAndCreate("{}", HttpStatus.SC_OK, HttpStatus.SC_OK);
 
+    when(Json.mapper.readValue(anyString(), any(Class.class))).thenReturn(titleCreated);
     CompletableFuture<Title> completableFuture = service.postTitle(titlePost, packageId);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID + "/titles", url.getValue());
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).postAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID + "/titles");
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/titles/" + TITLE_ID);
   }
 
   @Test
@@ -310,8 +322,8 @@ public class HoldingsIQServiceImplTest {
     mockResponseForUpdateAndCreate("{}", HttpStatus.SC_NO_CONTENT, HttpStatus.SC_OK);
     service.updateResource(resourceId, resourcePut);
 
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID + "/titles/" + TITLE_ID, url.getValue());
+    verify(mockClient).putAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID + "/titles/" + TITLE_ID);
   }
 
   @Test
@@ -319,9 +331,9 @@ public class HoldingsIQServiceImplTest {
     mockResponse("{}", HttpStatus.SC_NO_CONTENT);
     CompletableFuture<Void> completableFuture = service.deleteResource(resourceId);
 
-    assertTrue(completableFuture.isDone());
-    assertEquals(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID + "/titles/" + TITLE_ID, url.getValue());
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(mockClient).putAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
+      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID + "/titles/" + TITLE_ID);
   }
 
   private void mockResponse(String responseBody, int status, String statusMessage) {
@@ -352,5 +364,9 @@ public class HoldingsIQServiceImplTest {
       requestHandler.getValue().handle(mockResponse);
       return null;
     };
+  }
+
+  private boolean isCompletedNormally(CompletableFuture completableFuture) {
+    return completableFuture.isDone() && !completableFuture.isCompletedExceptionally() && !completableFuture.isCancelled();
   }
 }
