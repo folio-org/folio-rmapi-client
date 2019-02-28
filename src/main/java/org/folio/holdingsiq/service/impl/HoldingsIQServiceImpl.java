@@ -33,17 +33,6 @@ public class HoldingsIQServiceImpl extends CommonHoldingsService implements Hold
   public CompletableFuture<RootProxyCustomLabels> updateRootProxyCustomLabels(RootProxyCustomLabels rootProxyCustomLabels) {
     final String path = "";
 
-    // below convertion from rootProxyPutRequest to rootProxyCustomLabels has to be inside a Converter implementation
-    /*Proxy.ProxyBuilder pb = Proxy.builder();
-    pb.id(rootProxyPutRequest.getData().getAttributes().getProxyTypeId());
-
-    RootProxyCustomLabels.RootProxyCustomLabelsBuilder clb = rootProxyCustomLabels.toBuilder().proxy(pb.build());*/
-    /* In RM API - custom labels and root proxy are updated using the same PUT endpoint.
-     * We are GETting the object containing both, updating the root proxy with the new one and making a PUT request to RM API.
-     * Custom Labels contain only values that have display labels up to a maximum of 5 with fewer possible
-     */
-    /*clb.labelList(rootProxyCustomLabels.getLabelList());*/
-
     return this.putRequest(constructURL(path), rootProxyCustomLabels)
       .thenCompose(updatedRootProxy -> this.retrieveRootProxyCustomLabels());
   }

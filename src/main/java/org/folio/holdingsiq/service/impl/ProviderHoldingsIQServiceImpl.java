@@ -18,11 +18,8 @@ public class ProviderHoldingsIQServiceImpl extends CommonHoldingsService impleme
   private static final String VENDOR_NAME_PARAMETER = "vendorname";
   private HoldingsIQService holdingsIQService;
 
-  public ProviderHoldingsIQServiceImpl(String customerId, String apiKey, String baseURI, Vertx vertx) {
+  public ProviderHoldingsIQServiceImpl(String customerId, String apiKey, String baseURI, Vertx vertx, HoldingsIQService holdingsIQService) {
     super(customerId, apiKey, baseURI, vertx);
-  }
-
-  public void setHoldingsIQService(HoldingsIQService holdingsIQService) {
     this.holdingsIQService = holdingsIQService;
   }
 
