@@ -7,26 +7,40 @@ import org.folio.holdingsiq.model.PackagePut;
 import org.folio.holdingsiq.model.Packages;
 import org.folio.holdingsiq.model.Sort;
 import org.folio.holdingsiq.service.PackagesHoldingsIQService;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
+import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAndCreate;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceImplTest {
+public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
   private PackagesHoldingsIQService packagesHoldingsIQService =
     new PackagesHoldingsIQServiceImpl(HoldingsIQServiceImplTest.STUB_CUSTOMER_ID,
       HoldingsIQServiceImplTest.STUB_API_KEY, HoldingsIQServiceImplTest.STUB_BASE_URL, mockVertx);
 
+  @Before
+  public void setUp() throws IOException {
+    setUpStep();
+  }
+
+  @After
+  public void tearDown() {
+    tearDownStep();
+  }
+
   @Test
   public void testRetrievePackages() {
-    mockResponse("{}", HttpStatus.SC_OK);
+    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
     CompletableFuture<Packages> completableFuture = packagesHoldingsIQService.retrievePackages("ebsco",
       "filterType", VENDOR_ID, "Query", PAGE_FOR_PARAM, COUNT_FOR_PARAM, Sort.NAME);
 
@@ -38,7 +52,7 @@ public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceImplTest
 
   @Test
   public void testRetrievePackagesWithVendorId() {
-    mockResponse("{}", HttpStatus.SC_OK);
+    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
     CompletableFuture<Packages> completableFuture = packagesHoldingsIQService.retrievePackages(VENDOR_ID);
 
     assertTrue(isCompletedNormally(completableFuture));
@@ -49,7 +63,7 @@ public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceImplTest
 
   @Test
   public void testRetrievePackage() {
-    mockResponse("{}", HttpStatus.SC_OK);
+    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
     CompletableFuture<PackageByIdData> completableFuture = packagesHoldingsIQService.retrievePackage(packageId);
 
     assertTrue(isCompletedNormally(completableFuture));
@@ -59,7 +73,7 @@ public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceImplTest
 
   @Test
   public void testUpdatePackage() {
-    mockResponseForUpdateAndCreate("{}", HttpStatus.SC_NO_CONTENT, HttpStatus.SC_OK);
+    mockResponseForUpdateAndCreate(mockResponseBody, mockResponse, "{}", HttpStatus.SC_NO_CONTENT, HttpStatus.SC_OK);
     packagesHoldingsIQService.updatePackage(packageId, PackagePut.builder().build());
 
     verify(mockClient).putAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
@@ -68,7 +82,7 @@ public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceImplTest
 
   @Test
   public void testDeletePackage() {
-    mockResponse("{}", HttpStatus.SC_NO_CONTENT);
+    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_NO_CONTENT);
     CompletableFuture<Void> completableFuture = packagesHoldingsIQService.deletePackage(packageId);
 
     assertTrue(isCompletedNormally(completableFuture));
@@ -78,7 +92,7 @@ public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceImplTest
 
   @Test
   public void testPostPackage() throws IOException {
-    mockResponse("{}", HttpStatus.SC_OK);
+    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
 
     when(Json.mapper.readValue(anyString(), any(Class.class))).thenReturn(packageCreated);
     CompletableFuture<PackageByIdData> completableFuture = packagesHoldingsIQService.postPackage(packagePost, VENDOR_ID);

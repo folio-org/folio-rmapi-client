@@ -5,26 +5,40 @@ import org.apache.http.HttpStatus;
 import org.folio.holdingsiq.model.Sort;
 import org.folio.holdingsiq.model.VendorById;
 import org.folio.holdingsiq.model.Vendors;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
+import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
+import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAndCreate;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceImplTest {
+public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
   private ProviderHoldingsIQServiceImpl providerHoldingsIQService =
     new ProviderHoldingsIQServiceImpl(HoldingsIQServiceImplTest.STUB_CUSTOMER_ID,
       HoldingsIQServiceImplTest.STUB_API_KEY, HoldingsIQServiceImplTest.STUB_BASE_URL, mockVertx, service);
 
+  @Before
+  public void setUp() throws IOException {
+    setUpStep();
+  }
+
+  @After
+  public void tearDown() {
+    tearDownStep();
+  }
+
   @Test
   public void testGetVendorId() throws IOException {
-    mockResponse("{}", HttpStatus.SC_OK);
+    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
     when(Json.mapper.readValue(anyString(), any(Class.class))).thenReturn(rootProxyCustomLabels);
     CompletableFuture<Long> completableFuture = providerHoldingsIQService.getVendorId();
 
@@ -34,7 +48,7 @@ public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceImplTest
 
   @Test
   public void testRetrieveVendors() {
-    mockResponse("{}", HttpStatus.SC_OK);
+    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
     CompletableFuture<Vendors> completableFuture = providerHoldingsIQService.retrieveProviders("Busket",
       PAGE_FOR_PARAM,
       COUNT_FOR_PARAM, Sort.NAME);
@@ -46,7 +60,7 @@ public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceImplTest
 
   @Test
   public void testRetrieveVendorsCompleteExceptionallyWhenRequestWithError404() {
-    mockResponse("{}", HttpStatus.SC_NOT_FOUND, "Error 404. Not faund");
+    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_NOT_FOUND, "Not Found");
     CompletableFuture<Vendors> future = providerHoldingsIQService.retrieveProviders("Busket",
       PAGE_FOR_PARAM, COUNT_FOR_PARAM, Sort.NAME);
     assertTrue(future.isCompletedExceptionally());
@@ -54,7 +68,7 @@ public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceImplTest
 
   @Test
   public void testRetrieveVendorsCompleteExceptionallyWhenRequestWithError401() {
-    mockResponse("{}", HttpStatus.SC_UNAUTHORIZED, "Error 401 unauthorized");
+    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_UNAUTHORIZED, "Unauthorized");
     CompletableFuture<Vendors> future = providerHoldingsIQService.retrieveProviders("Busket",
       PAGE_FOR_PARAM, COUNT_FOR_PARAM, Sort.NAME);
     assertTrue(future.isCompletedExceptionally());
@@ -62,7 +76,7 @@ public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceImplTest
 
   @Test
   public void testRetrieveVendorsCompleteExceptionallyWhenThrowServiceException() throws IOException {
-    mockResponse("{}", HttpStatus.SC_OK);
+    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
     when(Json.mapper.readValue(anyString(), any(Class.class))).thenThrow(IOException.class);
 
     CompletableFuture<Vendors> future = providerHoldingsIQService.retrieveProviders("Busket",
@@ -73,7 +87,7 @@ public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceImplTest
 
   @Test
   public void testUpdateVendor() {
-    mockResponseForUpdateAndCreate("{}", HttpStatus.SC_NO_CONTENT, HttpStatus.SC_OK);
+    mockResponseForUpdateAndCreate(mockResponseBody, mockResponse, "{}", HttpStatus.SC_NO_CONTENT, HttpStatus.SC_OK);
     CompletableFuture<VendorById> completableFuture = providerHoldingsIQService
       .updateProvider(VENDOR_ID, vendorPut);
 
