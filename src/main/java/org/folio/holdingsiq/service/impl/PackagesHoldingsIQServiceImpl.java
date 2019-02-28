@@ -1,5 +1,8 @@
 package org.folio.holdingsiq.service.impl;
 
+import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.PACKAGES_PATH;
+import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.VENDORS_PATH;
+
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -13,20 +16,21 @@ import org.folio.holdingsiq.model.PackagePut;
 import org.folio.holdingsiq.model.PackageSelectedPayload;
 import org.folio.holdingsiq.model.Packages;
 import org.folio.holdingsiq.model.Sort;
-import org.folio.holdingsiq.service.CommonHoldingsService;
 import org.folio.holdingsiq.service.PackagesHoldingsIQService;
 import org.folio.holdingsiq.service.impl.urlbuilder.PackagesFilterableUrlBuilder;
 
-public class PackagesHoldingsIQServiceImpl extends CommonHoldingsService implements PackagesHoldingsIQService {
+public class PackagesHoldingsIQServiceImpl implements PackagesHoldingsIQService {
+
+  private HoldingsRequestHelper holdingsRequestHelper;
 
   public PackagesHoldingsIQServiceImpl(String customerId, String apiKey, String baseURI, Vertx vertx) {
-    super(customerId, apiKey, baseURI, vertx);
+    holdingsRequestHelper = new HoldingsRequestHelper(customerId, apiKey, baseURI, vertx);
   }
 
   @Override
   public CompletableFuture<PackageByIdData> retrievePackage(PackageId packageId) {
     final String path = VENDORS_PATH + '/' + packageId.getProviderIdPart() + '/' + PACKAGES_PATH + '/' + packageId.getPackageIdPart();
-    return this.getRequest(constructURL(path), PackageByIdData.class);
+    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(path), PackageByIdData.class);
   }
 
   @Override
@@ -48,13 +52,13 @@ public class PackagesHoldingsIQServiceImpl extends CommonHoldingsService impleme
 
     String packagesPath = providerId == null ? PACKAGES_PATH + "?" : VENDORS_PATH + '/' + providerId + '/' + PACKAGES_PATH + "?";
 
-    return this.getRequest(constructURL(packagesPath + path), Packages.class);
+    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(packagesPath + path), Packages.class);
   }
 
   @Override
   public CompletableFuture<PackageByIdData> postPackage(PackagePost entity, Long vendorId) {
     String path = VENDORS_PATH + '/' + vendorId + '/' + PACKAGES_PATH;
-    return this.postRequest(constructURL(path), entity, PackageCreated.class)
+    return holdingsRequestHelper.postRequest(holdingsRequestHelper.constructURL(path), entity, PackageCreated.class)
       .thenCompose(packageCreated -> retrievePackage(
         PackageId.builder()
           .providerIdPart(vendorId)
@@ -66,12 +70,12 @@ public class PackagesHoldingsIQServiceImpl extends CommonHoldingsService impleme
   public CompletionStage<Void> updatePackage(PackageId packageId, PackagePut packagePut) {
     final String path = VENDORS_PATH + '/' + packageId.getProviderIdPart() + '/' + PACKAGES_PATH + '/' + packageId.getPackageIdPart();
 
-    return this.putRequest(constructURL(path), packagePut);
+    return holdingsRequestHelper.putRequest(holdingsRequestHelper.constructURL(path), packagePut);
   }
 
   @Override
   public CompletableFuture<Void> deletePackage(PackageId packageId) {
     final String path = VENDORS_PATH + '/' + packageId.getProviderIdPart() + '/' + PACKAGES_PATH + '/' + packageId.getPackageIdPart();
-    return this.putRequest(constructURL(path), new PackageSelectedPayload(false));
+    return holdingsRequestHelper.putRequest(holdingsRequestHelper.constructURL(path), new PackageSelectedPayload(false));
   }
 }
