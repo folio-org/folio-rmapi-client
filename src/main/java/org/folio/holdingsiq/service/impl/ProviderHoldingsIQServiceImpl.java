@@ -1,5 +1,7 @@
 package org.folio.holdingsiq.service.impl;
 
+import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.VENDORS_PATH;
+
 import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.Vertx;
@@ -8,21 +10,18 @@ import org.folio.holdingsiq.model.Sort;
 import org.folio.holdingsiq.model.VendorById;
 import org.folio.holdingsiq.model.VendorPut;
 import org.folio.holdingsiq.model.Vendors;
-import org.folio.holdingsiq.service.CommonHoldingsService;
 import org.folio.holdingsiq.service.HoldingsIQService;
 import org.folio.holdingsiq.service.ProviderHoldingsIQService;
 import org.folio.holdingsiq.service.impl.urlbuilder.QueryableUrlBuilder;
 
-public class ProviderHoldingsIQServiceImpl extends CommonHoldingsService implements ProviderHoldingsIQService {
+public class ProviderHoldingsIQServiceImpl implements ProviderHoldingsIQService {
 
   private static final String VENDOR_NAME_PARAMETER = "vendorname";
   private HoldingsIQService holdingsIQService;
+  private HoldingsRequestHelper holdingsRequestHelper;
 
-  public ProviderHoldingsIQServiceImpl(String customerId, String apiKey, String baseURI, Vertx vertx) {
-    super(customerId, apiKey, baseURI, vertx);
-  }
-
-  public void setHoldingsIQService(HoldingsIQService holdingsIQService) {
+  public ProviderHoldingsIQServiceImpl(String customerId, String apiKey, String baseURI, Vertx vertx, HoldingsIQService holdingsIQService) {
+    holdingsRequestHelper = new HoldingsRequestHelper(customerId, apiKey, baseURI, vertx);
     this.holdingsIQService = holdingsIQService;
   }
 
@@ -37,7 +36,7 @@ public class ProviderHoldingsIQServiceImpl extends CommonHoldingsService impleme
   public CompletableFuture<VendorById> retrieveProvider(long id) {
     CompletableFuture<VendorById> vendorFuture;
     final String path = VENDORS_PATH + '/' + id;
-    vendorFuture = this.getRequest(constructURL(path), VendorById.class);
+    vendorFuture = holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(path), VendorById.class);
     return vendorFuture;
   }
 
@@ -45,7 +44,7 @@ public class ProviderHoldingsIQServiceImpl extends CommonHoldingsService impleme
   public CompletableFuture<VendorById> updateProvider(long id, VendorPut rmapiVendor) {
     final String path = VENDORS_PATH + '/' + id;
 
-    return this.putRequest(constructURL(path), rmapiVendor)
+    return holdingsRequestHelper.putRequest(holdingsRequestHelper.constructURL(path), rmapiVendor)
       .thenCompose(vend -> this.retrieveProvider(id));
   }
 
@@ -58,7 +57,7 @@ public class ProviderHoldingsIQServiceImpl extends CommonHoldingsService impleme
       .sort(sort)
       .nameParameter(VENDOR_NAME_PARAMETER)
       .build();
-    return getRequest(constructURL(VENDORS_PATH + "?" + query), Vendors.class);
+    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(VENDORS_PATH + "?" + query), Vendors.class);
   }
 
 }

@@ -1,4 +1,4 @@
-package org.folio.holdingsiq.service;
+package org.folio.holdingsiq.service.impl;
 
 import static java.lang.String.format;
 
@@ -18,9 +18,9 @@ import org.folio.holdingsiq.service.exception.ResultsProcessingException;
 import org.folio.holdingsiq.service.exception.ServiceResponseException;
 import org.folio.holdingsiq.service.exception.UnAuthorizedException;
 
-public abstract class CommonHoldingsService {
+public class HoldingsRequestHelper {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CommonHoldingsService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HoldingsRequestHelper.class);
 
   private static final String HTTP_HEADER_CONTENT_TYPE = "Content-type";
   private static final String APPLICATION_JSON = "application/json";
@@ -45,7 +45,7 @@ public abstract class CommonHoldingsService {
 
   private Vertx vertx;
 
-  public CommonHoldingsService(String customerId, String apiKey, String baseURI, Vertx vertx) {
+  public HoldingsRequestHelper(String customerId, String apiKey, String baseURI, Vertx vertx) {
     this.customerId = customerId;
     this.apiKey = apiKey;
     this.baseURI = baseURI;
@@ -140,7 +140,7 @@ public abstract class CommonHoldingsService {
     request.headers().add(RMAPI_API_KEY, apiKey);
   }
 
-  protected  <T> void handleRMAPIError(HttpClientResponse response, String query, Buffer body,
+  private <T> void handleRMAPIError(HttpClientResponse response, String query, Buffer body,
                                     CompletableFuture<T> future) {
 
     LOG.error("{} status code = [{}] status message = [{}] query = [{}] body = [{}]",

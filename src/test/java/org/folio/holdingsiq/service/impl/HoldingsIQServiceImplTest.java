@@ -42,7 +42,7 @@ public class HoldingsIQServiceImplTest {
   private Buffer mockResponseBody = mock(Buffer.class);
   private MultiMap stubHeaderMap = new CaseInsensitiveHeaders();
   private HoldingsIQService holdingsIQService = new HoldingsIQServiceImpl(STUB_CUSTOMER_ID, STUB_API_KEY, STUB_BASE_URL, mockVertx);
-  private ProviderHoldingsIQServiceImpl service = new ProviderHoldingsIQServiceImpl(STUB_CUSTOMER_ID, STUB_API_KEY, STUB_BASE_URL, mockVertx);
+  private ProviderHoldingsIQServiceImpl service = new ProviderHoldingsIQServiceImpl(STUB_CUSTOMER_ID, STUB_API_KEY, STUB_BASE_URL, mockVertx, holdingsIQService);
 
   private ArgumentCaptor<String> url = ArgumentCaptor.forClass(String.class);
 
@@ -51,7 +51,6 @@ public class HoldingsIQServiceImplTest {
   public void setUp() {
     ArgumentCaptor<Handler<HttpClientResponse>> requestHandler = ArgumentCaptor.forClass(Handler.class);
     ArgumentCaptor<Handler<Throwable>> exceptionHandler = ArgumentCaptor.forClass(Handler.class);
-    service.setHoldingsIQService(holdingsIQService);
 
     when(mockVertx.createHttpClient()).thenReturn(mockClient);
     when(mockClient.getAbs(url.capture())).thenReturn(mockRequest);
