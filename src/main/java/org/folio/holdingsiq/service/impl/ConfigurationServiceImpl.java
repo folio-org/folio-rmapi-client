@@ -21,6 +21,7 @@ import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.model.ConfigurationError;
 import org.folio.holdingsiq.model.OkapiData;
 import org.folio.holdingsiq.service.ConfigurationService;
+import org.folio.holdingsiq.service.exception.ConfigurationServiceException;
 import org.folio.rest.client.ConfigurationsClient;
 import org.folio.rest.jaxrs.model.Config;
 import org.folio.rest.tools.client.Response;
@@ -195,9 +196,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
    */
   private boolean verifyResponse(HttpClientResponse response, Buffer responseBody, CompletableFuture<?> future) {
     if (!Response.isSuccess(response.statusCode())) {
-      future.completeExceptionally(new IllegalStateException(String.format(
-        "Request to mod-configuration failed: error code - %s response body - %s", response.statusCode(), responseBody
-      )));
+      future.completeExceptionally(new ConfigurationServiceException(responseBody.toString(), response.statusCode()));
       return false;
     }
     return true;

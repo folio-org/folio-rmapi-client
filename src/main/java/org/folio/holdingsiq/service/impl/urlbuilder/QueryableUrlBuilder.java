@@ -49,14 +49,14 @@ public class QueryableUrlBuilder {
       try {
         encodedQuery = URLEncoder.encode(q, "UTF-8");
       } catch (UnsupportedEncodingException e) {
-        throw new IllegalStateException("failed to encode query using UTF-8");
+        throw new IllegalStateException("failed to encode query using UTF-8", e);
       }
       parameters.add("search=" + encodedQuery);
     }
     else {
       parameters.add("search=");
     }
-    
+
     parameters.add("offset=" + page);
     parameters.add("count=" + count);
     parameters.add("orderby=" + determineSortValue(sort, q));
