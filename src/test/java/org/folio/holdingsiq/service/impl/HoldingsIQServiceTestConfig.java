@@ -1,6 +1,33 @@
 package org.folio.holdingsiq.service.impl;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.concurrent.CompletableFuture;
+
+import org.folio.holdingsiq.model.Configuration;
+import org.folio.holdingsiq.model.FilterQuery;
+import org.folio.holdingsiq.model.PackageCreated;
+import org.folio.holdingsiq.model.PackageId;
+import org.folio.holdingsiq.model.PackagePost;
+import org.folio.holdingsiq.model.ResourceId;
+import org.folio.holdingsiq.model.ResourcePut;
+import org.folio.holdingsiq.model.RootProxyCustomLabels;
+import org.folio.holdingsiq.model.TitleCreated;
+import org.folio.holdingsiq.model.TitlePost;
+import org.folio.holdingsiq.model.Titles;
+import org.folio.holdingsiq.model.VendorPut;
+import org.folio.holdingsiq.service.HoldingsIQService;
+import org.mockito.ArgumentCaptor;
+import org.mockito.stubbing.Answer;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
@@ -10,18 +37,6 @@ import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.json.Json;
-import org.folio.holdingsiq.model.*;
-import org.folio.holdingsiq.service.HoldingsIQService;
-import org.mockito.ArgumentCaptor;
-import org.mockito.stubbing.Answer;
-
-import java.io.IOException;
-import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
-
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.*;
 
 public class HoldingsIQServiceTestConfig {
   protected static final String STUB_CUSTOMER_ID = "TEST_CUSTOMER_ID";
@@ -33,6 +48,7 @@ public class HoldingsIQServiceTestConfig {
   protected static final Long PACKAGE_ID = 2222L;
   protected static final Long TITLE_ID = 3333L;
   protected static final Long VENDOR_ID = 5555L;
+  protected static final Configuration CONFIGURATION = Configuration.builder().customerId(STUB_CUSTOMER_ID).apiKey(STUB_API_KEY).url(STUB_BASE_URL).build();
 
   protected Vertx mockVertx = mock(Vertx.class);
   protected HttpClient mockClient = mock(HttpClient.class);
@@ -40,7 +56,7 @@ public class HoldingsIQServiceTestConfig {
   protected HttpClientResponse mockResponse = mock(HttpClientResponse.class);
   protected Buffer mockResponseBody = mock(Buffer.class);
   protected MultiMap stubHeaderMap = new CaseInsensitiveHeaders();
-  protected HoldingsIQService service = new HoldingsIQServiceImpl(STUB_CUSTOMER_ID, STUB_API_KEY, STUB_BASE_URL, mockVertx);
+  protected HoldingsIQService service = new HoldingsIQServiceImpl(CONFIGURATION, mockVertx);
   protected ArgumentCaptor<String> url = ArgumentCaptor.forClass(String.class);
 
   protected ObjectMapper savedPrettyMapper;

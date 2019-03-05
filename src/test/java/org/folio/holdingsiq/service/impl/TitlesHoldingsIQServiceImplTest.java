@@ -24,8 +24,7 @@ import static org.mockito.Mockito.when;
 public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
   private TitlesHoldingsIQService titlesHoldingsIQService =
-    new TitlesHoldingsIQServiceImpl(HoldingsIQServiceImplTest.STUB_CUSTOMER_ID,
-      HoldingsIQServiceImplTest.STUB_API_KEY, HoldingsIQServiceImplTest.STUB_BASE_URL, mockVertx);
+    new TitlesHoldingsIQServiceImpl(HoldingsIQServiceImplTest.CONFIGURATION, mockVertx);
 
   @Before
   public void setUp() throws IOException {

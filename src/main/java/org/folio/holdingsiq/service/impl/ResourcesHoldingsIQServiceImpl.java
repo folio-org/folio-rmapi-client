@@ -11,6 +11,7 @@ import java.util.concurrent.CompletionStage;
 
 import io.vertx.core.Vertx;
 
+import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.model.ResourceDeletePayload;
 import org.folio.holdingsiq.model.ResourceId;
 import org.folio.holdingsiq.model.ResourcePut;
@@ -23,8 +24,8 @@ public class ResourcesHoldingsIQServiceImpl implements ResourcesHoldingsIQServic
   private static final String RESOURCE_ENDPOINT_FORMAT = "vendors/%s/packages/%s/titles/%s";
   private HoldingsRequestHelper holdingsRequestHelper;
 
-  public ResourcesHoldingsIQServiceImpl(String customerId, String apiKey, String baseURI, Vertx vertx) {
-    holdingsRequestHelper = new HoldingsRequestHelper(customerId, apiKey, baseURI, vertx);
+  public ResourcesHoldingsIQServiceImpl(Configuration config, Vertx vertx) {
+    holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
   }
 
   @Override

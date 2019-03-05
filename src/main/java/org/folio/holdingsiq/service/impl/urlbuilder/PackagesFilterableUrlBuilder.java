@@ -2,21 +2,12 @@ package org.folio.holdingsiq.service.impl.urlbuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 
 import org.folio.holdingsiq.model.Sort;
 
 public class PackagesFilterableUrlBuilder {
-
-  private static final Map<String, String> FILTER_SELECTED_MAPPING =
-    ImmutableMap.of(
-      "true", "selected",
-      "false", "notselected",
-      "ebsco", "orderedthroughebsco"
-    );
 
   private String filterSelected;
   private String filterType;
@@ -57,7 +48,7 @@ public class PackagesFilterableUrlBuilder {
 
   public String build(){
 
-    String selection = FILTER_SELECTED_MAPPING.getOrDefault(filterSelected, "all");
+    String selection = StringUtils.defaultIfEmpty(filterSelected, "all");
     String contentType = StringUtils.defaultIfEmpty(filterType, "all");
     List<String> parameters = new ArrayList<>();
 

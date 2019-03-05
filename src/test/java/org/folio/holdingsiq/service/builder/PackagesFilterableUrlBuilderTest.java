@@ -11,7 +11,7 @@ public class PackagesFilterableUrlBuilderTest {
   @Test
   public void shouldBuildUrlWithFilterSelectedTrue() {
     String url = new PackagesFilterableUrlBuilder()
-      .filterSelected("true")
+      .filterSelected("selected")
       .sort(Sort.NAME)
       .build();
     assertEquals("selection=selected&contenttype=all&search=&offset=1&count=25&orderby=packagename", url);
@@ -28,7 +28,7 @@ public class PackagesFilterableUrlBuilderTest {
   @Test
   public void shouldBuildUrlWithFilterSelectedEBSCO() {
     String url = new PackagesFilterableUrlBuilder()
-      .filterSelected("ebsco")
+      .filterSelected("orderedthroughebsco")
       .sort(Sort.NAME)
       .build();
     assertEquals("selection=orderedthroughebsco&contenttype=all&search=&offset=1&count=25&orderby=packagename", url);

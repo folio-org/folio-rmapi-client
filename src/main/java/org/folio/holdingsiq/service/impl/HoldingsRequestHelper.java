@@ -13,6 +13,7 @@ import io.vertx.core.json.Json;
 import io.vertx.core.logging.Logger;
 import io.vertx.core.logging.LoggerFactory;
 
+import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.service.exception.ResourceNotFoundException;
 import org.folio.holdingsiq.service.exception.ResultsProcessingException;
 import org.folio.holdingsiq.service.exception.ServiceResponseException;
@@ -45,10 +46,10 @@ public class HoldingsRequestHelper {
 
   private Vertx vertx;
 
-  public HoldingsRequestHelper(String customerId, String apiKey, String baseURI, Vertx vertx) {
-    this.customerId = customerId;
-    this.apiKey = apiKey;
-    this.baseURI = baseURI;
+  public HoldingsRequestHelper(Configuration config, Vertx vertx) {
+    this.customerId = config.getCustomerId();
+    this.apiKey = config.getApiKey();
+    this.baseURI = config.getUrl();
     this.vertx = vertx;
   }
 
