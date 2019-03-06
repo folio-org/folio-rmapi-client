@@ -2,9 +2,7 @@ package org.folio.holdingsiq.service.impl.urlbuilder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import com.google.common.collect.ImmutableMap;
 import org.apache.commons.lang3.StringUtils;
 
 import org.folio.holdingsiq.model.FilterQuery;
@@ -12,13 +10,6 @@ import org.folio.holdingsiq.model.Sort;
 
 
 public class TitlesFilterableUrlBuilder {
-
-  private static final Map<String, String> FILTER_SELECTED_MAPPING =
-    ImmutableMap.of(
-      "true", "selected",
-      "false", "notselected",
-      "ebsco", "orderedthroughebsco"
-    );
   private static final String SEARCHFIELD_TITLENAME = "titlename";
   private static final String SEARCHFIELD_ISXN = "isxn";
   private static final String SEARCHFIELD_PUBLISHER = "publisher";
@@ -68,7 +59,7 @@ public class TitlesFilterableUrlBuilder {
       searchField = SEARCHFIELD_TITLENAME;
     }
 
-    String selection = FILTER_SELECTED_MAPPING.getOrDefault(filterQuery.getSelected(), "all");
+    String selection = StringUtils.defaultString(filterQuery.getSelected(), "all");
 
     String resourceType = StringUtils.defaultString(filterQuery.getType(), "all");
 

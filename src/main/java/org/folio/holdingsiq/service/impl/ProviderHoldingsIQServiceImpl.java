@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.Vertx;
 
+import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.model.Sort;
 import org.folio.holdingsiq.model.VendorById;
 import org.folio.holdingsiq.model.VendorPut;
@@ -20,9 +21,14 @@ public class ProviderHoldingsIQServiceImpl implements ProviderHoldingsIQService 
   private HoldingsIQService holdingsIQService;
   private HoldingsRequestHelper holdingsRequestHelper;
 
-  public ProviderHoldingsIQServiceImpl(String customerId, String apiKey, String baseURI, Vertx vertx, HoldingsIQService holdingsIQService) {
-    holdingsRequestHelper = new HoldingsRequestHelper(customerId, apiKey, baseURI, vertx);
+  public ProviderHoldingsIQServiceImpl(Configuration config, Vertx vertx, HoldingsIQService holdingsIQService) {
+    holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
     this.holdingsIQService = holdingsIQService;
+  }
+
+  public ProviderHoldingsIQServiceImpl(Configuration config, Vertx vertx) {
+    holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
+    this.holdingsIQService = new HoldingsIQServiceImpl(config, vertx);
   }
 
   @Override

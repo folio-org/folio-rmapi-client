@@ -6,6 +6,7 @@ import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.Vertx;
 
+import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.model.Proxies;
 import org.folio.holdingsiq.model.RootProxyCustomLabels;
 import org.folio.holdingsiq.service.HoldingsIQService;
@@ -14,8 +15,8 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
 
   private HoldingsRequestHelper holdingsRequestHelper;
 
-  public HoldingsIQServiceImpl(String customerId, String apiKey, String baseURI, Vertx vertx) {
-    holdingsRequestHelper = new HoldingsRequestHelper(customerId, apiKey, baseURI, vertx);
+  public HoldingsIQServiceImpl(Configuration config, Vertx vertx) {
+    holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
   }
 
   @Override

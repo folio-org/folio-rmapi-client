@@ -52,7 +52,7 @@ public class TitlesFilterableUrlBuilderTest {
   @Test
   public void shouldBuildUrlForFilterBySelectedStatus() {
     String url = new TitlesFilterableUrlBuilder()
-      .filter(fqb.name("news").type("book").selected("true").build())
+      .filter(fqb.name("news").type("book").selected("selected").build())
       .sort(Sort.RELEVANCE)
       .build();
     assertEquals("searchfield=titlename&selection=selected&resourcetype=book&searchtype=advanced&search=news" +

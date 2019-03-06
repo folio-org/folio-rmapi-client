@@ -8,6 +8,7 @@ import java.util.concurrent.CompletionStage;
 
 import io.vertx.core.Vertx;
 
+import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.model.PackageByIdData;
 import org.folio.holdingsiq.model.PackageCreated;
 import org.folio.holdingsiq.model.PackageId;
@@ -23,8 +24,8 @@ public class PackagesHoldingsIQServiceImpl implements PackagesHoldingsIQService 
 
   private HoldingsRequestHelper holdingsRequestHelper;
 
-  public PackagesHoldingsIQServiceImpl(String customerId, String apiKey, String baseURI, Vertx vertx) {
-    holdingsRequestHelper = new HoldingsRequestHelper(customerId, apiKey, baseURI, vertx);
+  public PackagesHoldingsIQServiceImpl(Configuration config, Vertx vertx) {
+    holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
   }
 
   @Override

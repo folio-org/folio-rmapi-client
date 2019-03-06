@@ -11,6 +11,7 @@ import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.Vertx;
 
+import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.model.FilterQuery;
 import org.folio.holdingsiq.model.PackageId;
 import org.folio.holdingsiq.model.Sort;
@@ -25,8 +26,8 @@ public class TitlesHoldingsIQServiceImpl implements TitlesHoldingsIQService {
 
   private HoldingsRequestHelper holdingsRequestHelper;
 
-  public TitlesHoldingsIQServiceImpl(String customerId, String apiKey, String baseURI, Vertx vertx) {
-    holdingsRequestHelper = new HoldingsRequestHelper(customerId, apiKey, baseURI, vertx);
+  public TitlesHoldingsIQServiceImpl(Configuration config, Vertx vertx) {
+    holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
   }
 
   @Override

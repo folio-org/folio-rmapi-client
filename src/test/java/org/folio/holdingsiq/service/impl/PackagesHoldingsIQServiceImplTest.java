@@ -25,8 +25,7 @@ import static org.mockito.Mockito.when;
 public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
   private PackagesHoldingsIQService packagesHoldingsIQService =
-    new PackagesHoldingsIQServiceImpl(HoldingsIQServiceImplTest.STUB_CUSTOMER_ID,
-      HoldingsIQServiceImplTest.STUB_API_KEY, HoldingsIQServiceImplTest.STUB_BASE_URL, mockVertx);
+    new PackagesHoldingsIQServiceImpl(HoldingsIQServiceImplTest.CONFIGURATION, mockVertx);
 
   @Before
   public void setUp() throws IOException {
@@ -41,7 +40,7 @@ public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConf
   @Test
   public void testRetrievePackages() {
     mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    CompletableFuture<Packages> completableFuture = packagesHoldingsIQService.retrievePackages("ebsco",
+    CompletableFuture<Packages> completableFuture = packagesHoldingsIQService.retrievePackages("orderedthroughebsco",
       "filterType", VENDOR_ID, "Query", PAGE_FOR_PARAM, COUNT_FOR_PARAM, Sort.NAME);
 
     assertTrue(isCompletedNormally(completableFuture));

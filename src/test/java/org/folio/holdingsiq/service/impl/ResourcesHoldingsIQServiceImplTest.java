@@ -19,8 +19,7 @@ import static org.mockito.Mockito.verify;
 public class ResourcesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
   private ResourcesHoldingsIQService resourcesHoldingsIQService =
-    new ResourcesHoldingsIQServiceImpl(HoldingsIQServiceImplTest.STUB_CUSTOMER_ID,
-      HoldingsIQServiceImplTest.STUB_API_KEY, HoldingsIQServiceImplTest.STUB_BASE_URL, mockVertx);
+    new ResourcesHoldingsIQServiceImpl(HoldingsIQServiceImplTest.CONFIGURATION, mockVertx);
 
   @Before
   public void setUp() throws IOException {

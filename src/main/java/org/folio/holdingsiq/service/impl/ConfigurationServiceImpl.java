@@ -83,8 +83,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     if (!isConfigurationParametersValid(configuration, errors)) {
       return CompletableFuture.completedFuture(errors);
     }
-    return new HoldingsIQServiceImpl(configuration.getCustomerId(), configuration.getApiKey(),
-      configuration.getUrl(), vertxContext.owner())
+    return new HoldingsIQServiceImpl(configuration, vertxContext.owner())
       .verifyCredentials()
       .thenCompose(o -> CompletableFuture.completedFuture(Collections.<ConfigurationError>emptyList()))
       .exceptionally(e -> Collections.singletonList(new ConfigurationError("KB API Credentials are invalid")));
