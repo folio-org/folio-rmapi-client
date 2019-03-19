@@ -25,7 +25,7 @@ public class PackageParametersValidator {
     if(Objects.nonNull(filterType) &&  !FILTER_TYPE_VALUES.contains(filterType)){
       throw new ValidationException("Invalid Query Parameter for filter[type]");
     }
-    if (Objects.nonNull(filterSelected) && !FILTER_SELECTED_VALUES.contains(filterSelected)){
+    if (!FILTER_SELECTED_VALUES.contains(filterSelected)){
       throw new ValidationException("Invalid Query Parameter for filter[selected]");
     }
   }

@@ -1,6 +1,7 @@
 package org.folio.holdingsiq.service.validator;
 
 import javax.validation.ValidationException;
+
 import org.junit.Test;
 
 public class PackageParametersValidatorTest {
@@ -9,6 +10,11 @@ public class PackageParametersValidatorTest {
 
   @Test
   public void shouldNotThrowExceptionWhenParametersAreValid() {
+    validator.validate("selected", null, "relevance", "query");
+  }
+
+  @Test(expected = ValidationException.class)
+  public void shouldThrowExceptionWhenFilterSelectedIsNull() {
     validator.validate(null, null, "relevance", "query");
   }
 
