@@ -2,6 +2,7 @@ package org.folio.holdingsiq.service.impl;
 
 import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.VENDORS_PATH;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.Vertx;
@@ -66,4 +67,8 @@ public class ProviderHoldingsIQServiceImpl implements ProviderHoldingsIQService 
     return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(VENDORS_PATH + "?" + query), Vendors.class);
   }
 
+  @Override
+  public CompletableFuture<Vendors> retrieveProviders(List<Long> ids) {
+    throw new UnsupportedOperationException("Not implemented");
+  }
 }
