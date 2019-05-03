@@ -1,14 +1,20 @@
 package org.folio.holdingsiq.service.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
-import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.buffer.impl.BufferImpl;
-import io.vertx.core.http.HttpClientResponse;
-import io.vertx.core.http.impl.HttpClientResponseImpl;
+import static org.folio.holdingsiq.service.config.ConfigTestData.OKAPI_DATA;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+
 import org.folio.holdingsiq.model.Configuration;
-import org.folio.holdingsiq.model.OkapiData;
 import org.folio.holdingsiq.service.impl.ConfigurationClientProvider;
 import org.folio.holdingsiq.service.impl.ConfigurationServiceImpl;
 import org.folio.rest.client.ConfigurationsClient;
@@ -19,24 +25,16 @@ import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
+import io.vertx.core.Handler;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.buffer.impl.BufferImpl;
+import io.vertx.core.http.HttpClientResponse;
+import io.vertx.core.http.impl.HttpClientResponseImpl;
 
 public class RMAPIConfigurationServiceTest {
 
-  private static final String OKAPI_TOKEN_HEADER = "x-okapi-token";
-  private static final String OKAPI_URL_HEADER = "x-okapi-url";
-  private static final String OKAPI_TENANT_HEADER = "x-okapi-tenant";
-
-  private static final OkapiData OKAPI_DATA = new OkapiData(ImmutableMap.of(
-    OKAPI_TOKEN_HEADER, "token",
-    OKAPI_TENANT_HEADER, "tenant",
-    OKAPI_URL_HEADER, "https://localhost:8080"));
   private ConfigurationClientProvider configurationClientProvider = mock(ConfigurationClientProvider.class);
   private ConfigurationsClient mockConfigurationsClient = mock(ConfigurationsClient.class);
   private ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl(configurationClientProvider);
