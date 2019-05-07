@@ -27,18 +27,10 @@ public class ConfigurationServiceCache implements ConfigurationService {
 
   @Override
   public CompletableFuture<Configuration> retrieveConfiguration(OkapiData okapiData) {
-    Configuration cachedConfiguration = configurationCache
-      .getValue(okapiData.getTenant());
-    if(cachedConfiguration != null){
-      return CompletableFuture.completedFuture(cachedConfiguration);
-    }
-
-    return configurationService.retrieveConfiguration(okapiData)
-    .thenCompose(configuration -> {
-      configurationCache
-        .putValue(okapiData.getTenant(), configuration);
-      return CompletableFuture.completedFuture(configuration);
-    });
+    return configurationCache
+      .getValueOrLoad(okapiData.getTenant(),
+        () -> configurationService.retrieveConfiguration(okapiData)
+      );
   }
 
   @Override

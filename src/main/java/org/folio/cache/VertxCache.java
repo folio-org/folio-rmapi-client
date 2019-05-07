@@ -2,6 +2,8 @@ package org.folio.cache;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.shareddata.LocalMap;
@@ -42,6 +44,19 @@ public class VertxCache<K, V> {
       return null;
     } else {
       return configurationWrapper.getCacheValue();
+    }
+  }
+
+  public CompletableFuture<V> getValueOrLoad(K key, Supplier<CompletableFuture<V>> loader){
+    V value = getValue(key);
+    if (value != null) {
+      return CompletableFuture.completedFuture(value);
+    } else {
+      return loader.get()
+        .thenCompose(newValue -> {
+          putValue(key, newValue);
+          return CompletableFuture.completedFuture(newValue);
+        });
     }
   }
 
