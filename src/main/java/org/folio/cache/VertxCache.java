@@ -3,8 +3,7 @@ package org.folio.cache;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.concurrent.CompletableFuture;
-
-import org.glassfish.jersey.internal.util.Producer;
+import java.util.function.Supplier;
 
 import io.vertx.core.Vertx;
 import io.vertx.core.shareddata.LocalMap;
@@ -48,12 +47,12 @@ public class VertxCache<K, V> {
     }
   }
 
-  public CompletableFuture<V> getValueOrLoad(K key, Producer<CompletableFuture<V>> loader){
+  public CompletableFuture<V> getValueOrLoad(K key, Supplier<CompletableFuture<V>> loader){
     V value = getValue(key);
     if (value != null) {
       return CompletableFuture.completedFuture(value);
     } else {
-      return loader.call()
+      return loader.get()
         .thenCompose(newValue -> {
           putValue(key, newValue);
           return CompletableFuture.completedFuture(newValue);

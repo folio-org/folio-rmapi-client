@@ -7,11 +7,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
 import java.util.concurrent.CompletableFuture;
-
-import org.glassfish.jersey.internal.util.Producer;
-import org.junit.Test;
+import java.util.function.Supplier;
 
 import io.vertx.core.Vertx;
+import org.junit.Test;
 
 public class VertxCacheTest {
 
@@ -32,16 +31,16 @@ public class VertxCacheTest {
 
   @Test
   public void shouldLoadValueOnCacheMiss() {
-    Producer<CompletableFuture<String>> loader = spy(new TestProducer());
+    Supplier<CompletableFuture<String>> loader = spy(new TestProducer());
     CompletableFuture<String> returnedValue = testCache.getValueOrLoad(KEY, loader);
     assertEquals(VALUE, testCache.getValue(KEY));
     assertEquals(VALUE, returnedValue.join());
-    verify(loader).call();
+    verify(loader).get();
   }
 
   @Test
   public void shouldNotLoadValueOnCacheHit() {
-    Producer<CompletableFuture<String>> loader = spy(new TestProducer());
+    Supplier<CompletableFuture<String>> loader = spy(new TestProducer());
     testCache.putValue(KEY, VALUE);
     CompletableFuture<String> returnedValue = testCache.getValueOrLoad(KEY, loader);
     assertEquals(VALUE, testCache.getValue(KEY));
@@ -63,9 +62,9 @@ public class VertxCacheTest {
     assertNull(testCache.getValue(KEY));
   }
 
-  private static class TestProducer implements Producer<CompletableFuture<String>>{
+  private static class TestProducer implements Supplier<CompletableFuture<String>> {
     @Override
-    public CompletableFuture<String> call() {
+    public CompletableFuture<String> get() {
       return CompletableFuture.completedFuture(VALUE);
     }
   }
