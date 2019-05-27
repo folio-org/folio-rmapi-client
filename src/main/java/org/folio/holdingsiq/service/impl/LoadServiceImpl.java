@@ -17,7 +17,7 @@ public class LoadServiceImpl implements LoadService {
   private HoldingsRequestHelper holdingsRequestHelper;
   private Vertx vertx;
 
-  LoadServiceImpl(Configuration config, Vertx vertx) {
+  public LoadServiceImpl(Configuration config, Vertx vertx) {
     this.vertx = vertx;
     holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
   }
