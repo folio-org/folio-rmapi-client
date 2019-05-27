@@ -19,7 +19,7 @@ import org.folio.holdingsiq.service.exception.ResultsProcessingException;
 import org.folio.holdingsiq.service.exception.ServiceResponseException;
 import org.folio.holdingsiq.service.exception.UnAuthorizedException;
 
-public class HoldingsRequestHelper {
+class HoldingsRequestHelper {
 
   private static final Logger LOG = LoggerFactory.getLogger(HoldingsRequestHelper.class);
 
@@ -36,9 +36,9 @@ public class HoldingsRequestHelper {
   private static final String VENDOR_UPPER_STRING = "Vendor";
   private static final String PROVIDER_UPPER_STRING = "Provider";
 
-  protected static final String VENDORS_PATH = "vendors";
-  protected static final String PACKAGES_PATH = "packages";
-  protected static final String TITLES_PATH = "titles";
+  static final String VENDORS_PATH = "vendors";
+  static final String PACKAGES_PATH = "packages";
+  static final String TITLES_PATH = "titles";
 
   private String customerId;
   private String apiKey;
@@ -46,14 +46,14 @@ public class HoldingsRequestHelper {
 
   private Vertx vertx;
 
-  public HoldingsRequestHelper(Configuration config, Vertx vertx) {
+  HoldingsRequestHelper(Configuration config, Vertx vertx) {
     this.customerId = config.getCustomerId();
     this.apiKey = config.getApiKey();
     this.baseURI = config.getUrl();
     this.vertx = vertx;
   }
 
-  protected  <T> CompletableFuture<T> getRequest(String query, Class<T> clazz) {
+  <T> CompletableFuture<T> getRequest(String query, Class<T> clazz) {
     CompletableFuture<T> future = new CompletableFuture<>();
 
     HttpClient httpClient = vertx.createHttpClient();
@@ -69,7 +69,7 @@ public class HoldingsRequestHelper {
     return future;
   }
 
-  protected <T> CompletableFuture<Void> putRequest(String query, T putData) {
+  <T> CompletableFuture<Void> putRequest(String query, T putData) {
     CompletableFuture<Void> future = new CompletableFuture<>();
 
     HttpClient httpClient = vertx.createHttpClient();
@@ -96,7 +96,7 @@ public class HoldingsRequestHelper {
     return future;
   }
 
-  protected <T, P> CompletableFuture<T> postRequest(String query, P postData, Class<T> clazz){
+  <T, P> CompletableFuture<T> postRequest(String query, P postData, Class<T> clazz){
     CompletableFuture<T> future = new CompletableFuture<>();
 
     HttpClient httpClient = vertx.createHttpClient();
@@ -135,14 +135,14 @@ public class HoldingsRequestHelper {
     })).exceptionHandler(future::completeExceptionally);
   }
 
-  private void addRequestHeaders(HttpClientRequest request) {
+  void addRequestHeaders(HttpClientRequest request) {
     request.headers().add(HTTP_HEADER_ACCEPT, APPLICATION_JSON);
     request.headers().add(HTTP_HEADER_CONTENT_TYPE, APPLICATION_JSON);
     request.headers().add(RMAPI_API_KEY, apiKey);
   }
 
-  private <T> void handleRMAPIError(HttpClientResponse response, String query, Buffer body,
-                                    CompletableFuture<T> future) {
+  <T> void handleRMAPIError(HttpClientResponse response, String query, Buffer body,
+                                      CompletableFuture<T> future) {
 
     LOG.error("{} status code = [{}] status message = [{}] query = [{}] body = [{}]",
       INVALID_RMAPI_RESPONSE, response.statusCode(), response.statusMessage(), query, body.toString());
@@ -174,7 +174,7 @@ public class HoldingsRequestHelper {
    * @param path
    *          path appended to the end of url
    */
-  protected String constructURL(String path) {
+  String constructURL(String path) {
     String fullPath = format("%s/rm/rmaccounts/%s/%s", baseURI, customerId, path);
 
     LOG.info("constructurl - path=" + fullPath);
