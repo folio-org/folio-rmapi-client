@@ -54,4 +54,8 @@ public class PackageByIdData extends PackageData {
       .vendorName(getVendorName())
       .visibilityData(getVisibilityData());
   }
+
+  public String getFullPackageId(){
+    return getVendorId() + "-" + getPackageId();
+  }
 }

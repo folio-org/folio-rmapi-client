@@ -4,7 +4,6 @@ import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.PACKAGES_P
 import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.VENDORS_PATH;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
 
 import io.vertx.core.Vertx;
 
@@ -68,9 +67,8 @@ public class PackagesHoldingsIQServiceImpl implements PackagesHoldingsIQService 
   }
 
   @Override
-  public CompletionStage<Void> updatePackage(PackageId packageId, PackagePut packagePut) {
+  public CompletableFuture<Void> updatePackage(PackageId packageId, PackagePut packagePut) {
     final String path = VENDORS_PATH + '/' + packageId.getProviderIdPart() + '/' + PACKAGES_PATH + '/' + packageId.getPackageIdPart();
-
     return holdingsRequestHelper.putRequest(holdingsRequestHelper.constructURL(path), packagePut);
   }
 

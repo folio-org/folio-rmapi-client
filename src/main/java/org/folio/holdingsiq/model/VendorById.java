@@ -30,4 +30,14 @@ public class VendorById extends Vendor {
     this.vendorByIdToken = vendorByIdToken;
   }
 
+  public VendorById.VendorByIdBuilder toByIdBuilder() {
+    return VendorById.byIdBuilder()
+      .vendorId((int)getVendorId())
+      .vendorName(getVendorName())
+      .packagesTotal(getPackagesTotal())
+      .packagesSelected(getPackagesSelected())
+      .isCustomer(isCustomer())
+      .proxy(getProxy())
+      .vendorByIdToken(vendorByIdToken);
+  }
 }
