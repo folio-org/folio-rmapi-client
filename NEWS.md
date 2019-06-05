@@ -5,3 +5,5 @@
 * Add parameter validation
 ## 1.2.0 2019-05-07
 * Add getValueOrLoad() method to VertxCache 
+## 1.3.0 2019-06-05
+* Add service for creating and loading holdings snapshot 
