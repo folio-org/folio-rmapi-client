@@ -7,7 +7,9 @@ import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.TITLES_PAT
 import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.VENDORS_PATH;
 
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Predicate;
 
 import io.vertx.core.Vertx;
 
@@ -38,17 +40,16 @@ public class TitlesHoldingsIQServiceImpl implements TitlesHoldingsIQService {
 
   @Override
   public CompletableFuture<Titles> retrieveTitles(String rmapiQuery) {
-    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(String.format("titles?%s", rmapiQuery)), Titles.class);
+    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(String.format("titles?%s", rmapiQuery)), Titles.class)
+      .thenCompose(titles -> completedFuture(postProcessTitles(titles)));
   }
 
   @Override
   public CompletableFuture<Titles> retrieveTitles(FilterQuery filterQuery, Sort sort, int page, int count) {
     String path = new TitlesFilterableUrlBuilder().filter(filterQuery).sort(sort).page(page).count(count).build();
 
-    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(TITLES_PATH + "?" + path), Titles.class).thenCompose(titles -> {
-      titles.getTitleList().removeIf(Objects::isNull);
-      return completedFuture(titles);
-    });
+    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(TITLES_PATH + "?" + path), Titles.class)
+      .thenCompose(titles -> completedFuture(postProcessTitles(titles)));
   }
 
   @Override
@@ -58,10 +59,32 @@ public class TitlesHoldingsIQServiceImpl implements TitlesHoldingsIQService {
 
     String titlesPath = VENDORS_PATH + '/' + providerId + '/' + PACKAGES_PATH + '/' + packageId + '/' + TITLES_PATH + "?";
 
-    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(titlesPath + path), Titles.class).thenCompose(titles -> {
-      titles.getTitleList().removeIf(Objects::isNull);
-      return completedFuture(titles);
-    });
+    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(titlesPath + path), Titles.class)
+      .thenCompose(titles -> completedFuture(postProcessTitles(titles)));
+  }
+
+  private Titles postProcessTitles(Titles titles) {
+    int initialSize = titles.getTitleList().size();
+    removeInvalidObjects(titles);
+    final Integer totalResults = getTotalResults(titles, initialSize);
+    return titles.toBuilder().totalResults(totalResults).build();
+  }
+
+  private void removeInvalidObjects(Titles titles) {
+    Predicate<Title> isNullPredicate = Objects::isNull;
+    Predicate<Title> isEmptyCustomerResourcesListPredicate = title -> title.getCustomerResourcesList().isEmpty();
+
+    titles.getTitleList().removeIf((isNullPredicate).or(isEmptyCustomerResourcesListPredicate));
+  }
+
+  private Integer getTotalResults(Titles titles, int initialSize) {
+
+    final int sizeAfterRemove = titles.getTitleList().size();
+    final int removedCount = initialSize - sizeAfterRemove;
+
+    return Optional.ofNullable(titles.getTotalResults())
+      .map(total -> total - removedCount)
+      .orElse(0);
   }
 
   @Override
