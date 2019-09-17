@@ -17,6 +17,8 @@ public class PackagePut {
   private CoverageDates customCoverage;
   @JsonProperty("isSelected")
   private Boolean isSelected;
+  @JsonProperty("isFullPackage")
+  private Boolean isFullPackage;
   @JsonProperty("allowEbscoToAddTitles")
   private Boolean allowEbscoToAddTitles;
   @JsonProperty("isHidden")
