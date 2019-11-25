@@ -1,3 +1,5 @@
+## 1.6.0 2019-11-25
+* MODKBEKBJ-339 - Remove dependency on RMB
 ## 1.5.0 2019-09-24
 * MODKBEKBJ-311 - Add "isFullPackage" to PackagePut
 ## 1.4.0 2019-09-10
