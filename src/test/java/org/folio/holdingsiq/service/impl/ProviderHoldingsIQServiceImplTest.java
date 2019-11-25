@@ -20,6 +20,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
   private ProviderHoldingsIQServiceImpl providerHoldingsIQService =
@@ -74,9 +77,9 @@ public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceTestConf
   }
 
   @Test
-  public void testRetrieveVendorsCompleteExceptionallyWhenThrowServiceException() throws IOException {
+  public void testRetrieveVendorsCompleteExceptionallyWhenThrowServiceException() throws JsonProcessingException {
     mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    when(Json.mapper.readValue(anyString(), any(Class.class))).thenThrow(IOException.class);
+    when(Json.mapper.readValue(anyString(), any(Class.class))).thenThrow(JsonParseException.class);
 
     CompletableFuture<Vendors> future = providerHoldingsIQService.retrieveProviders("Busket",
       PAGE_FOR_PARAM, COUNT_FOR_PARAM, Sort.NAME);
