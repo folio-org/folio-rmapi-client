@@ -41,4 +41,14 @@ public class ResourcePut {
   private List<Identifier> identifiersList;
   @JsonProperty("customCoverageList")
   private List<CoverageDates> customCoverageList;
+  @JsonProperty("userDefinedField1")
+  private String userDefinedField1;
+  @JsonProperty("userDefinedField2")
+  private String userDefinedField2;
+  @JsonProperty("userDefinedField3")
+  private String userDefinedField3;
+  @JsonProperty("userDefinedField4")
+  private String userDefinedField4;
+  @JsonProperty("userDefinedField5")
+  private String userDefinedField5;
 }
