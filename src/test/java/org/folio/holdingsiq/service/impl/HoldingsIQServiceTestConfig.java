@@ -63,7 +63,7 @@ public class HoldingsIQServiceTestConfig {
   protected ObjectMapper savedMapper;
   protected FilterQuery filterQuery = FilterQuery.builder().build();
   protected VendorPut vendorPut = VendorPut.builder().build();
-  protected ResourcePut resourcePut = ResourcePut.resourcePutBuilder().build();
+  protected ResourcePut resourcePut = ResourcePut.builder().build();
   protected PackagePost packagePost = PackagePost.builder().build();
   protected TitlePost titlePost = TitlePost.builder().build();
 
