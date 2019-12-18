@@ -2,24 +2,24 @@ package org.folio.holdingsiq.model;
 
 import java.util.List;
 
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
-import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.ToString;
-
+import lombok.RequiredArgsConstructor;
+import lombok.Value;
 
 
 @Getter
-@ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
+@Builder(toBuilder = true)
+@RequiredArgsConstructor
+@AllArgsConstructor(onConstructor = @__(@JsonIgnore))
 @JsonIgnoreProperties(ignoreUnknown = true)
-@JsonAutoDetect(creatorVisibility = JsonAutoDetect.Visibility.ANY)
-public class ResourcePut extends ResourceBase{
+public class ResourcePut {
   @JsonProperty("isHidden")
   private Boolean isHidden;
   @JsonProperty("titleName")
@@ -38,51 +38,18 @@ public class ResourcePut extends ResourceBase{
   private List<Contributor> contributorsList;
   @JsonProperty("identifiersList")
   private List<Identifier> identifiersList;
-
-  @JsonCreator
-  @Builder(builderMethodName = "resourcePutBuilder")
-  ResourcePut(
-    @JsonProperty("coverageStatement") String coverageStatement,
-    @JsonProperty("isSelected") Boolean isSelected,
-    @JsonProperty("customEmbargoPeriod") EmbargoPeriod customEmbargoPeriod,
-    @JsonProperty("proxy") Proxy proxy,
-    @JsonProperty("url") String url,
-    @JsonProperty("customCoverageList") List<CoverageDates> customCoverageList,
-    @JsonProperty("userDefinedField1") String userDefinedField1,
-    @JsonProperty("userDefinedField2") String userDefinedField2,
-    @JsonProperty("userDefinedField3") String userDefinedField3,
-    @JsonProperty("userDefinedField4") String userDefinedField4,
-    @JsonProperty("userDefinedField5") String userDefinedField5,
-    @JsonProperty("isHidden") Boolean isHidden,
-    @JsonProperty("titleName") String titleName,
-    @JsonProperty("pubType") String pubType,
-    @JsonProperty("publisherName") String publisherName,
-    @JsonProperty("isPeerReviewed") Boolean isPeerReviewed,
-    @JsonProperty("description") String description,
-    @JsonProperty("edition") String edition,
-    @JsonProperty("contributorsList") List<Contributor> contributorsList,
-    @JsonProperty("identifiersList") List<Identifier> identifiersList
-  ) {
-    super(
-      coverageStatement,
-      isSelected,
-      customEmbargoPeriod,
-      proxy,
-      url,
-      customCoverageList,
-      userDefinedField1,
-      userDefinedField2,
-      userDefinedField3,
-      userDefinedField4,
-      userDefinedField5);
-    this.isHidden = isHidden;
-    this.titleName = titleName;
-    this.pubType = pubType;
-    this.publisherName = publisherName;
-    this.isPeerReviewed = isPeerReviewed;
-    this.description = description;
-    this.edition = edition;
-    this.contributorsList = contributorsList;
-    this.identifiersList = identifiersList;
-  }
+  @JsonProperty("coverageStatement")
+  private String coverageStatement;
+  @JsonProperty("isSelected")
+  private Boolean isSelected;
+  @JsonProperty("customEmbargoPeriod")
+  private EmbargoPeriod customEmbargoPeriod;
+  @JsonProperty("proxy")
+  private Proxy proxy;
+  @JsonProperty("url")
+  private String url;
+  @JsonProperty("customCoverageList")
+  private List<CoverageDates> customCoverageList;
+  @JsonUnwrapped
+  private UserDefinedFields userDefinedFields;
 }
