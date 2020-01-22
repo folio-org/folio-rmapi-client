@@ -1,0 +1,5 @@
+package org.folio.holdingsiq.model;
+
+public enum HoldingChangeType {
+  HOLDING_ADDED, HOLDING_UPDATED, HOLDING_DELETED, HOLDING_UPDATED_ADDED_COVERAGE, HOLDING_UPDATED_DELETED_COVERAGE
+}

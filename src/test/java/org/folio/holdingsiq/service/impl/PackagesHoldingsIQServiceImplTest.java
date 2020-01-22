@@ -19,6 +19,7 @@ import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAn
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -93,7 +94,7 @@ public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConf
   public void testPostPackage() throws IOException {
     mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
 
-    when(Json.mapper.readValue(anyString(), any(Class.class))).thenReturn(packageCreated);
+    doReturn(packageCreated).when(Json.mapper).readValue(anyString(), any(Class.class));
     CompletableFuture<PackageByIdData> completableFuture = packagesHoldingsIQService.postPackage(packagePost, VENDOR_ID);
 
     assertTrue(isCompletedNormally(completableFuture));
