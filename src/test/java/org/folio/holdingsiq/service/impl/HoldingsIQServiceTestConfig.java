@@ -4,6 +4,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
@@ -93,8 +94,8 @@ public class HoldingsIQServiceTestConfig {
     //Save mappers to restore them later
     savedMapper = Json.mapper;
     savedPrettyMapper = Json.prettyMapper;
-    Json.prettyMapper = mock(ObjectMapper.class);
-    Json.mapper = mock(ObjectMapper.class);
+    Json.prettyMapper = spy(Json.prettyMapper);
+    Json.mapper = spy(Json.mapper);
     when(Json.prettyMapper.writeValueAsString(any())).thenReturn(DUMMY_RESPONSE_BODY);
   }
 

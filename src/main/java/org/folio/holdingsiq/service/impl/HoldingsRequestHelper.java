@@ -118,10 +118,16 @@ class HoldingsRequestHelper {
                                   HttpClient httpClient, HttpClientRequest request) {
     request.handler(response -> response.bodyHandler(body -> {
       httpClient.close();
-      if (response.statusCode() == 200) {
+      if (response.statusCode() == 200 ||
+        response.statusCode() == 202) {
         try {
-          T results = Json.decodeValue(body.toString(), clazz);
-          future.complete(results);
+          if(clazz == String.class){
+            @SuppressWarnings("unchecked")
+            T value = (T) body.toString();
+            future.complete(value);
+          }else{
+            future.complete(Json.decodeValue(body.toString(), clazz));
+          }
         } catch (Exception e) {
           LOG.error("{} - Response = [{}] Target Type = [{}] Cause: [{}]",
             JSON_RESPONSE_ERROR, body.toString(), clazz, e.getMessage());

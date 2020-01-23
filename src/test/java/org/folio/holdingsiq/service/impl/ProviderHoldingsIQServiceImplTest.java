@@ -17,6 +17,8 @@ import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAn
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,7 +43,7 @@ public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceTestConf
   @Test
   public void testGetVendorId() throws IOException {
     mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    when(Json.mapper.readValue(anyString(), any(Class.class))).thenReturn(rootProxyCustomLabels);
+    doReturn(rootProxyCustomLabels).when(Json.mapper).readValue(anyString(), any(Class.class));
     CompletableFuture<Long> completableFuture = providerHoldingsIQService.getVendorId();
 
     assertTrue(isCompletedNormally(completableFuture));
@@ -79,7 +81,7 @@ public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceTestConf
   @Test
   public void testRetrieveVendorsCompleteExceptionallyWhenThrowServiceException() throws JsonProcessingException {
     mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    when(Json.mapper.readValue(anyString(), any(Class.class))).thenThrow(JsonParseException.class);
+    doThrow(JsonParseException.class).when(Json.mapper).readValue(anyString(), any(Class.class));
 
     CompletableFuture<Vendors> future = providerHoldingsIQService.retrieveProviders("Busket",
       PAGE_FOR_PARAM, COUNT_FOR_PARAM, Sort.NAME);
