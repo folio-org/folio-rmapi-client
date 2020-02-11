@@ -1,3 +1,7 @@
+## 1.7.0 2020-02-11
+* MODKBEKBJ-334 - Add userDefinedFields to TitlePost
+* MODKBEKBJ-335 - Add userDefinedFields to PUT resource request
+* MODKBEKBJ-344 - Implement new Holdings IQ endpoints
 ## 1.6.0 2019-11-25
 * MODKBEKBJ-339 - Remove dependency on RMB
 ## 1.5.0 2019-09-24
