@@ -1,7 +1,5 @@
 package org.folio.holdingsiq.service.impl;
 
-import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.VENDORS_PATH;
-
 import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.Vertx;
@@ -21,7 +19,7 @@ public class HoldingsIQServiceImpl implements HoldingsIQService {
 
   @Override
   public CompletableFuture<Object> verifyCredentials() {
-    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(VENDORS_PATH + "?search=zz12&offset=1&orderby=vendorname&count=1"), Object.class);
+    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(""), Object.class);
   }
 
   @Override
