@@ -1,26 +1,26 @@
 package org.folio.holdingsiq.service.impl;
 
-import org.apache.http.HttpStatus;
-import org.folio.holdingsiq.model.Proxies;
-import org.folio.holdingsiq.model.RootProxyCustomLabels;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-
-import io.vertx.core.json.Json;
-
-import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
-import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAndCreate;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
+
+import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
+import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAndCreate;
+
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import io.vertx.core.json.Json;
+import org.apache.http.HttpStatus;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.folio.holdingsiq.model.Proxies;
+import org.folio.holdingsiq.model.RootProxyCustomLabels;
 
 public class HoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
@@ -40,8 +40,7 @@ public class HoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
     CompletableFuture<Object> completableFuture = service.verifyCredentials();
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors?search=zz12&offset=1&orderby=vendorname&count=1");
+    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/");
   }
 
   @Test
