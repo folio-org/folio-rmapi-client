@@ -34,16 +34,6 @@ public class ConfigurationServiceCache implements ConfigurationService {
   }
 
   @Override
-  public CompletableFuture<Configuration> updateConfiguration(Configuration rmapiConfiguration, OkapiData okapiData) {
-    return configurationService.updateConfiguration(rmapiConfiguration, okapiData)
-    .thenCompose(configuration ->  {
-      configurationCache
-        .putValue(okapiData.getTenant(), configuration);
-      return CompletableFuture.completedFuture(configuration);
-    });
-  }
-
-  @Override
   public CompletableFuture<List<ConfigurationError>> verifyCredentials(Configuration configuration, Context vertxContext, String tenant) {
     if(configuration.getConfigValid() != null && configuration.getConfigValid()){
       return CompletableFuture.completedFuture(Collections.emptyList());

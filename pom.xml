@@ -19,8 +19,9 @@
   </licenses>
 
   <properties>
-    <vertx.version>3.8.1</vertx.version>
+    <vertx.version>3.8.4</vertx.version>
     <junit.version>4.12</junit.version>
+    <folio-service-tools.version>1.4.1</folio-service-tools.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -51,9 +52,14 @@
       <version>${vertx.version}</version>
     </dependency>
     <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-web-client</artifactId>
+      <version>${vertx.version}</version>
+    </dependency>
+    <dependency>
       <groupId>org.folio</groupId>
-      <artifactId>mod-configuration-client</artifactId>
-      <version>4.0.3</version>
+      <artifactId>folio-service-tools-dev</artifactId>
+      <version>${folio-service-tools.version}</version>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
