@@ -21,6 +21,8 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.predicate.ResponsePredicate;
@@ -38,6 +40,8 @@ import org.folio.rest.tools.utils.TenantTool;
  * Retrieves the RM API connection details from mod-configuration.
  */
 public class ConfigurationServiceImpl implements ConfigurationService {
+
+  private static final Logger LOG = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
 
   private static final String JSON_API_TYPE = "application/vnd.api+json";
   private static final String USER_CREDS_URL = "/eholdings/user-kb-credential";
@@ -70,7 +74,17 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   private CompletableFuture<JsonObject> getUserCredentials(OkapiData okapiData) {
-    return mapVertxFuture(getJson(USER_CREDS_URL, okapiData));
+    return mapVertxFuture(getJson(USER_CREDS_URL, okapiData)).whenComplete(this::logCredentialsRetrievalResult);
+  }
+
+  private void logCredentialsRetrievalResult(JsonObject creds, Throwable t) {
+    if (t != null) {
+      LOG.info("Failed to retrieve user credentials: " + t);
+    } else {
+      CredentialsReader reader = CredentialsReader.from(creds);
+
+      LOG.info("User credentials retrieved: id = '%s', name = '%s'", reader.getId(), reader.getName());
+    }
   }
 
   private Future<JsonObject> getJson(String requestUrl, OkapiData okapiData) {
@@ -92,15 +106,11 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   private Configuration credentialsToConfiguration(JsonObject creds) {
     Configuration.ConfigurationBuilder builder = Configuration.builder();
 
-    if (creds != null) {
-      JsonObject attrs = creds.getJsonObject("attributes");
+    CredentialsReader reader = CredentialsReader.from(creds);
 
-      if (attrs != null) {
-        builder.customerId(attrs.getString("customerId"));
-        builder.apiKey(attrs.getString("apiKey"));
-        builder.url(attrs.getString("url"));
-      }
-    }
+    builder.customerId(reader.getCustomerId());
+    builder.apiKey(reader.getApiKey());
+    builder.url(reader.getUrl());
 
     return builder.build();
   }
@@ -123,4 +133,47 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     return errors.isEmpty();
   }
+
+  private static class CredentialsReader {
+
+    private static final JsonObject EMPTY_JSON = new JsonObject();
+
+    private String id;
+    private JsonObject attrs;
+
+
+    CredentialsReader(JsonObject json) {
+      if (json != null) {
+        id = json.getString("id");
+        attrs = json.getJsonObject("attributes", EMPTY_JSON);
+      } else {
+        attrs = EMPTY_JSON;
+      }
+    }
+
+    static CredentialsReader from(JsonObject json) {
+      return new CredentialsReader(json);
+    }
+
+    String getId() {
+      return id;
+    }
+
+    String getName() {
+      return attrs.getString("name");
+    }
+
+    String getApiKey() {
+      return attrs.getString("apiKey");
+    }
+
+    String getUrl() {
+      return attrs.getString("url");
+    }
+
+    String getCustomerId() {
+      return attrs.getString("customerId");
+    }
+  }
+
 }
