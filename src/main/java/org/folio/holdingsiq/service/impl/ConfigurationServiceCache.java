@@ -34,14 +34,15 @@ public class ConfigurationServiceCache implements ConfigurationService {
   }
 
   @Override
-  public CompletableFuture<List<ConfigurationError>> verifyCredentials(Configuration configuration, Context vertxContext, String tenant) {
+  public CompletableFuture<List<ConfigurationError>> verifyCredentials(Configuration configuration, Context vertxContext,
+                                                                       OkapiData okapiData) {
     if(configuration.getConfigValid() != null && configuration.getConfigValid()){
       return CompletableFuture.completedFuture(Collections.emptyList());
     }
-    return configurationService.verifyCredentials(configuration, vertxContext, tenant)
+    return configurationService.verifyCredentials(configuration, vertxContext, okapiData)
       .thenCompose(errors -> {
         if(errors.isEmpty()){
-          configurationCache.putValue(tenant,
+          configurationCache.putValue(okapiData.getTenant(),
             configuration.toBuilder().configValid(true).build());
         }
         return CompletableFuture.completedFuture(errors);

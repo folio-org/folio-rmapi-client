@@ -60,7 +60,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   @Override
   public CompletableFuture<List<ConfigurationError>> verifyCredentials(Configuration configuration,
-                                                                       Context vertxContext, String tenant) {
+                                                                       Context vertxContext, OkapiData okapiData) {
     List<ConfigurationError> errors = new ArrayList<>();
 
     if (!isConfigurationParametersValid(configuration, errors)) {
