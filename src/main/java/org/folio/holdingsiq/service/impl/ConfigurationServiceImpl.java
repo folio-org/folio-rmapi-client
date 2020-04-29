@@ -37,7 +37,7 @@ import org.folio.holdingsiq.service.exception.ConfigurationServiceException;
 import org.folio.rest.tools.utils.TenantTool;
 
 /**
- * Retrieves the RM API connection details from mod-configuration.
+ * Retrieves the RM API connection details from eHoldings.
  */
 public class ConfigurationServiceImpl implements ConfigurationService {
 
@@ -83,7 +83,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     } else {
       CredentialsReader reader = CredentialsReader.from(creds);
 
-      LOG.info("User credentials retrieved: id = '%s', name = '%s'", reader.getId(), reader.getName());
+      LOG.info("User credentials retrieved: id = '" + reader.getId() + "', " +
+        "name = '" + reader.getName() + "'");
     }
   }
 
