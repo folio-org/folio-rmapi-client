@@ -2,7 +2,6 @@ package org.folio.holdingsiq.service.impl;
 
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
@@ -12,7 +11,7 @@ import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAn
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonParser;
 import io.vertx.core.json.Json;
 import org.apache.http.HttpStatus;
 import org.junit.After;
@@ -44,8 +43,8 @@ public class HoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
   }
 
   @Test
-  public void testRetrieveProxies() throws JsonProcessingException {
-    doReturn(null).when(Json.mapper).readValue(anyString(), any(Class.class));
+  public void testRetrieveProxies() throws IOException {
+    doReturn(null).when(Json.mapper).readValue(any(JsonParser.class), any(Class.class));
     mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
     CompletableFuture<Proxies> completableFuture = service.retrieveProxies();
 
