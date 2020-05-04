@@ -1,5 +1,9 @@
 package org.folio.holdingsiq.service.impl;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.concurrent.CompletableFuture.completedFuture;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -11,12 +15,13 @@ import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.model.ConfigurationError;
 import org.folio.holdingsiq.model.OkapiData;
 import org.folio.holdingsiq.service.ConfigurationService;
+import org.folio.util.TokenUtils;
 
 public class ConfigurationServiceCache implements ConfigurationService {
 
-  private ConfigurationService configurationService;
+  private final ConfigurationService configurationService;
 
-  private VertxCache<String, Configuration> configurationCache;
+  private final VertxCache<String, Configuration> configurationCache;
 
 
   public ConfigurationServiceCache(ConfigurationService configurationService,
@@ -27,26 +32,38 @@ public class ConfigurationServiceCache implements ConfigurationService {
 
   @Override
   public CompletableFuture<Configuration> retrieveConfiguration(OkapiData okapiData) {
-    return configurationCache
-      .getValueOrLoad(okapiData.getTenant(),
-        () -> configurationService.retrieveConfiguration(okapiData)
+    return TokenUtils.fetchUserInfo(okapiData.getApiToken())
+      .thenCompose(userInfo -> configurationCache.getValueOrLoad(
+          userInfo.getUserId(),
+          () -> configurationService.retrieveConfiguration(okapiData))
       );
   }
 
   @Override
   public CompletableFuture<List<ConfigurationError>> verifyCredentials(Configuration configuration, Context vertxContext,
                                                                        OkapiData okapiData) {
-    if(configuration.getConfigValid() != null && configuration.getConfigValid()){
-      return CompletableFuture.completedFuture(Collections.emptyList());
+    if (configuration.getConfigValid() != null && configuration.getConfigValid()) {
+      return completedFuture(emptyList());
     }
+
     return configurationService.verifyCredentials(configuration, vertxContext, okapiData)
       .thenCompose(errors -> {
-        if(errors.isEmpty()){
-          configurationCache.putValue(okapiData.getTenant(),
-            configuration.toBuilder().configValid(true).build());
+        if (!errors.isEmpty()) {
+          return completedFuture(errors);
         }
-        return CompletableFuture.completedFuture(errors);
+
+        return storeConfigurationInCache(configuration, okapiData)
+          .thenApply(v -> Collections.<ConfigurationError>emptyList())
+          .exceptionally(t -> singletonList(new ConfigurationError(t.getMessage())));
       });
+  }
+
+  private CompletableFuture<Void> storeConfigurationInCache(Configuration config, OkapiData okapiData) {
+    return TokenUtils.fetchUserInfo(okapiData.getApiToken())
+      .thenAccept(userInfo -> configurationCache.putValue(
+          userInfo.getUserId(),
+          config.toBuilder().configValid(true).build())
+      );
   }
 
 }
