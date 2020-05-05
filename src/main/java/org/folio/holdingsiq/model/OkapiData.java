@@ -1,5 +1,7 @@
 package org.folio.holdingsiq.model;
 
+import static java.util.Collections.unmodifiableMap;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -11,12 +13,15 @@ public class OkapiData {
   private static final String OKAPI_URL_HEADER = "x-okapi-url";
   private static final String OKAPI_TENANT_HEADER = "x-okapi-tenant";
 
+  private Map<String, String> headers;
   private String apiToken;
   private String tenant;
   private String okapiHost;
   private int okapiPort;
 
   public OkapiData(Map<String, String> headers) {
+    this.headers = new HashMap<>(headers);
+
     Map<String, String> lowercaseHeaders = getLowercaseHeaders(headers);
 
     try {
@@ -28,6 +33,10 @@ public class OkapiData {
     } catch (MalformedURLException e) {
       throw new IllegalArgumentException("Okapi url header does not contain valid url", e);
     }
+  }
+
+  public Map<String, String> getOkapiHeaders() {
+    return unmodifiableMap(headers);
   }
 
   public String getApiToken() {
