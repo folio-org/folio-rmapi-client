@@ -6,6 +6,7 @@ public class ConfigurationServiceException extends RuntimeException {
   private final Integer statusCode;
 
   public ConfigurationServiceException(String responseBody, Integer statusCode) {
+    super("Status code: " + statusCode);
     this.responseBody = responseBody;
     this.statusCode = statusCode;
   }

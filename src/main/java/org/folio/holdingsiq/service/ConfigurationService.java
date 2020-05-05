@@ -13,7 +13,6 @@ public interface ConfigurationService {
 
   CompletableFuture<Configuration> retrieveConfiguration(OkapiData okapiData);
 
-  CompletableFuture<Configuration> updateConfiguration(Configuration configuration, OkapiData okapiData);
-
-  CompletableFuture<List<ConfigurationError>> verifyCredentials(Configuration configuration, Context vertxContext, String tenant);
+  CompletableFuture<List<ConfigurationError>> verifyCredentials(Configuration configuration, Context vertxContext,
+                                                                OkapiData okapiData);
 }

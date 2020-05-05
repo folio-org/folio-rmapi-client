@@ -1,133 +1,260 @@
 package org.folio.holdingsiq.service.config;
 
-import static org.folio.holdingsiq.service.config.ConfigTestData.OKAPI_DATA;
+import static io.vertx.core.Future.succeededFuture;
+import static org.apache.http.HttpHeaders.ACCEPT;
+import static org.apache.http.HttpStatus.SC_INTERNAL_SERVER_ERROR;
+import static org.apache.http.HttpStatus.SC_OK;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
+import static org.folio.holdingsiq.service.config.ConfigTestData.OKAPI_DATA;
+import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
+import static org.folio.rest.RestVerticle.OKAPI_HEADER_TOKEN;
+
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
-import org.folio.holdingsiq.model.Configuration;
-import org.folio.holdingsiq.service.impl.ConfigurationClientProvider;
-import org.folio.holdingsiq.service.impl.ConfigurationServiceImpl;
-import org.folio.rest.client.ConfigurationsClient;
-import org.folio.rest.jaxrs.model.Config;
-import org.folio.rest.jaxrs.model.Configs;
+import io.vertx.core.AsyncResult;
+import io.vertx.core.Handler;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.json.JsonObject;
+import io.vertx.ext.web.client.HttpRequest;
+import io.vertx.ext.web.client.HttpResponse;
+import io.vertx.ext.web.client.WebClient;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.folio.holdingsiq.model.Configuration;
+import org.folio.holdingsiq.service.impl.ConfigurationServiceImpl;
 
-import io.vertx.core.Handler;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.buffer.impl.BufferImpl;
-import io.vertx.core.http.HttpClientResponse;
-import io.vertx.core.http.impl.HttpClientResponseImpl;
-
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(WebClient.class)
+@PowerMockIgnore({"org.apache.logging.log4j.*"})
+// the above added due to the issue:
+// https://github.com/powermock/powermock/issues/861
 public class RMAPIConfigurationServiceTest {
 
-  private ConfigurationClientProvider configurationClientProvider = mock(ConfigurationClientProvider.class);
-  private ConfigurationsClient mockConfigurationsClient = mock(ConfigurationsClient.class);
-  private ConfigurationServiceImpl configurationService = new ConfigurationServiceImpl(configurationClientProvider);
+  private static final String JSON_API_TYPE = "application/vnd.api+json";
+  private static final String USER_CREDS_URL = "/eholdings/user-kb-credential";
+
+  private static final String USER_CRED_ID = "8d5b862b-9fb3-411d-afa7-406151739d26";
+  private static final String USER_CRED_NAME = "University of Massachusetts";
+  private static final String USER_CRED_APIKEY = "APIKEY";
+  private static final String USER_CRED_CUSTOMERID = "CUSTID";
+  private static final String USER_CRED_URL = "URL";
+
+  @Mock
+  private Vertx vertx;
+  @Mock
+  private WebClient webClient;
+  @Mock
+  private HttpResponse<Buffer> httpResponse;
+  @Mock
+  private HttpRequest<Buffer> httpRequest;
+  private ConfigurationServiceImpl service;
 
   @Before
   public void setUp() {
-    when(configurationClientProvider.createClient(anyString(), anyInt(), anyString(), anyString())).thenReturn(mockConfigurationsClient);
+    initMocks(this);
+
+    mockStatic(WebClient.class);
+    when(WebClient.create(vertx)).thenReturn(webClient);
+
+    service = new ConfigurationServiceImpl(vertx);
   }
 
   @Test
-  public void shouldCompleteExceptionallyWhenRequestFails() throws Exception {
-    HttpClientResponse response = mock(HttpClientResponseImpl.class);
-    when(response.statusCode()).thenReturn(400);
-    when(response.bodyHandler(any())).thenAnswer(new HandleBodyAnswer(new BufferImpl()));
-    doAnswer(new HandleResponseAnswer(response, 5))
-      .when(mockConfigurationsClient).getEntries(anyString(), anyInt(), anyInt(), any(), any(), any());
-    CompletableFuture<Configuration> future = configurationService.retrieveConfiguration(OKAPI_DATA);
-    assertTrue(future.isCompletedExceptionally());
+  public void shouldReturnConfiguration() throws ExecutionException, InterruptedException {
+    mockCredentialsRequest();
+
+    when(httpResponse.statusCode()).thenReturn(SC_OK);
+    when(httpResponse.bodyAsJsonObject()).thenReturn(CredentialsBuilder.instance()
+      .id(USER_CRED_ID)
+      .name(USER_CRED_NAME)
+      .apiKey(USER_CRED_APIKEY)
+      .customerId(USER_CRED_CUSTOMERID)
+      .url(USER_CRED_URL)
+      .build());
+
+    CompletableFuture<Configuration> result = service.retrieveConfiguration(OKAPI_DATA);
+
+    Configuration conf = result.get();
+
+    assertNotNull(conf);
+    assertEquals(USER_CRED_CUSTOMERID, conf.getCustomerId());
+    assertEquals(USER_CRED_APIKEY, conf.getApiKey());
+    assertEquals(USER_CRED_URL, conf.getUrl());
+
+    verifyCredentialsRequest();
   }
 
   @Test
-  public void shouldCompleteExceptionallyWhenHttpClientThrowsException() throws Exception {
-    doThrow(new UnsupportedEncodingException()).when(mockConfigurationsClient)
-      .getEntries(anyString(), anyInt(), anyInt(), any(), any(), any());
-    CompletableFuture<Configuration> future = configurationService.retrieveConfiguration(OKAPI_DATA);
-    assertTrue(future.isCompletedExceptionally());
+  public void shouldReturnPartiallyInitializedConfiguration() throws ExecutionException, InterruptedException {
+    mockCredentialsRequest();
+
+    when(httpResponse.statusCode()).thenReturn(SC_OK);
+    when(httpResponse.bodyAsJsonObject()).thenReturn(CredentialsBuilder.instance()
+      .id(USER_CRED_ID)
+      .name(USER_CRED_NAME)
+      .customerId(USER_CRED_CUSTOMERID)
+      .build());
+
+    CompletableFuture<Configuration> result = service.retrieveConfiguration(OKAPI_DATA);
+
+    Configuration conf = result.get();
+
+    assertNotNull(conf);
+    assertEquals(USER_CRED_CUSTOMERID, conf.getCustomerId());
+    assertNull(USER_CRED_APIKEY, conf.getApiKey());
+    assertNull(USER_CRED_URL, conf.getUrl());
+
+    verifyCredentialsRequest();
   }
 
   @Test
-  public void shouldCompleteExceptionallyWhenDeleteRequestFails() throws Exception {
-    HttpClientResponse getResponse = mock(HttpClientResponseImpl.class);
-    HttpClientResponse deleteResponse = mock(HttpClientResponseImpl.class);
+  public void shouldFailIfUserCredentialsResponseIsNotOk() {
+    mockCredentialsRequest();
 
-    Configs configs = new Configs().withConfigs(Arrays.asList(
-      createConfig("kb.ebsco.url"),
-      createConfig("kb.ebsco.customerId"),
-      createConfig("kb.ebsco.apiKey")
-    ));
+    when(httpResponse.statusCode()).thenReturn(SC_INTERNAL_SERVER_ERROR);
+    when(httpResponse.toString()).thenReturn("failure");
 
-    ObjectMapper mapper = new ObjectMapper();
-    BufferImpl buffer = new BufferImpl();
-    buffer.appendString(mapper.writeValueAsString(configs));
-    when(getResponse.statusCode()).thenReturn(200);
-    when(deleteResponse.statusCode()).thenReturn(400);
-    when(getResponse.bodyHandler(any())).thenAnswer(new HandleBodyAnswer(buffer));
-    when(deleteResponse.bodyHandler(any())).thenAnswer(new HandleBodyAnswer(new BufferImpl()));
+    CompletableFuture<Configuration> result = service.retrieveConfiguration(OKAPI_DATA);
 
-    doAnswer(new HandleResponseAnswer(getResponse, 5))
-      .when(mockConfigurationsClient).getEntries(anyString(), anyInt(), anyInt(), any(), any(), any());
-    doAnswer(new HandleResponseAnswer(deleteResponse, 2))
-      .when(mockConfigurationsClient).deleteEntryId(any(), any(), any());
+    assertTrue(result.isCompletedExceptionally());
 
-    CompletableFuture<Configuration> future = configurationService.updateConfiguration(Configuration.builder().build(), OKAPI_DATA);
-    assertTrue(future.isCompletedExceptionally());
+    verifyCredentialsRequest();
   }
 
-  private Config createConfig(String code) {
-    return new Config()
-      .withModule("EKB")
-      .withConfigName("api_access")
-      .withCode(code)
-      .withDescription("description")
-      .withEnabled(true)
-      .withValue("value");
+  private void verifyCredentialsRequest() {
+    verify(webClient).get(OKAPI_DATA.getOkapiPort(), OKAPI_DATA.getOkapiHost(), USER_CREDS_URL);
+    verify(httpRequest).putHeader(OKAPI_HEADER_TENANT, OKAPI_DATA.getTenant());
+    verify(httpRequest).putHeader(OKAPI_HEADER_TOKEN, OKAPI_DATA.getApiToken());
+    verify(httpRequest).putHeader(ACCEPT, JSON_API_TYPE);
+    verify(httpRequest).send(any());
   }
 
-  private class HandleBodyAnswer implements Answer<Object> {
-    private Buffer body;
+  private void mockCredentialsRequest() {
+    when(webClient.get(OKAPI_DATA.getOkapiPort(), OKAPI_DATA.getOkapiHost(), USER_CREDS_URL)).thenReturn(httpRequest);
 
-    HandleBodyAnswer(Buffer body) {
-      this.body = body;
+    when(httpRequest.putHeader(OKAPI_HEADER_TENANT, OKAPI_DATA.getTenant())).thenReturn(httpRequest);
+    when(httpRequest.putHeader(OKAPI_HEADER_TOKEN, OKAPI_DATA.getApiToken())).thenReturn(httpRequest);
+    when(httpRequest.putHeader(ACCEPT, JSON_API_TYPE)).thenReturn(httpRequest);
+    when(httpRequest.expect(any())).thenReturn(httpRequest);
+    doAnswer(httpResponseAnswer(httpResponse)).when(httpRequest).send(any());
+  }
+
+  private static <T> HandlerAnswer<AsyncResult<HttpResponse<T>>, Void> httpResponseAnswer(
+      HttpResponse<T> httpResponse) {
+    AsyncResult<HttpResponse<T>> res = succeededFuture(httpResponse);
+    return new HandlerAnswer<>(res, 0);
+  }
+
+  private static class CredentialsBuilder {
+
+    private final JsonObject creds;
+
+    static CredentialsBuilder instance() {
+      return new CredentialsBuilder();
+    }
+
+    private CredentialsBuilder() {
+      creds = new JsonObject();
+    }
+
+    CredentialsBuilder id(String id) {
+      if (StringUtils.isNotBlank(id)) {
+        creds.put("id", id);
+      }
+
+      return this;
+    }
+
+    CredentialsBuilder name(String name) {
+      if (StringUtils.isNotBlank(name)) {
+        attributes().put("name", name);
+      }
+
+      return this;
+    }
+
+    CredentialsBuilder apiKey(String apiKey) {
+      if (StringUtils.isNotBlank(apiKey)) {
+        attributes().put("apiKey", apiKey);
+      }
+
+      return this;
+    }
+
+    CredentialsBuilder url(String url) {
+      if (StringUtils.isNotBlank(url)) {
+        attributes().put("url", url);
+      }
+
+      return this;
+    }
+
+    CredentialsBuilder customerId(String customerId) {
+      if (StringUtils.isNotBlank(customerId)) {
+        attributes().put("customerId", customerId);
+      }
+
+      return this;
+    }
+
+    JsonObject build() {
+      return creds;
+    }
+
+    private JsonObject attributes() {
+      JsonObject attrs = creds.getJsonObject("attributes");
+
+      if (attrs == null) {
+        attrs = new JsonObject();
+        creds.put("attributes", attrs);
+      }
+
+      return attrs;
+    }
+  }
+
+  private static class HandlerAnswer<H, R> implements Answer<R> {
+
+    private final H handlerResult;
+    private final int argumentIndex;
+    private R returnResult;
+
+    public HandlerAnswer(H handlerResult, int handlerArgumentIndex) {
+      this.handlerResult = handlerResult;
+      this.argumentIndex = handlerArgumentIndex;
+    }
+
+    public HandlerAnswer(H handlerResult, int handlerArgumentIndex, R returnResult) {
+      this(handlerResult, handlerArgumentIndex);
+      this.returnResult = returnResult;
     }
 
     @Override
-    public Object answer(InvocationOnMock invocation) {
-      ((Handler<Buffer>) invocation.getArgument(0)).handle(body);
-      return invocation.getMock();
-    }
-  }
-
-  private class HandleResponseAnswer implements Answer<Object> {
-    private HttpClientResponse response;
-    private int handlerArgumentIndex;
-
-    HandleResponseAnswer(HttpClientResponse response, int handlerArgumentIndex) {
-      this.response = response;
-      this.handlerArgumentIndex = handlerArgumentIndex;
-    }
-
-    @Override
-    public Object answer(InvocationOnMock invocation) {
-      ((Handler<HttpClientResponse>) invocation.getArgument(handlerArgumentIndex)).handle(response);
-      return null;
+    public R answer(InvocationOnMock invocation) {
+      Handler<H> handler = invocation.getArgument(argumentIndex);
+      handler.handle(handlerResult);
+      return returnResult;
     }
   }
 }

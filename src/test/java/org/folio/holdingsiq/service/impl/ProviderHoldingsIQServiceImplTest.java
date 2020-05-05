@@ -1,29 +1,28 @@
 package org.folio.holdingsiq.service.impl;
 
-import io.vertx.core.json.Json;
-import org.apache.http.HttpStatus;
-import org.folio.holdingsiq.model.Sort;
-import org.folio.holdingsiq.model.VendorById;
-import org.folio.holdingsiq.model.Vendors;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.verify;
+
+import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
+import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAndCreate;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
-import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAndCreate;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.JsonParser;
+import io.vertx.core.json.Json;
+import org.apache.http.HttpStatus;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.folio.holdingsiq.model.Sort;
+import org.folio.holdingsiq.model.VendorById;
+import org.folio.holdingsiq.model.Vendors;
 
 public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
@@ -43,7 +42,7 @@ public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceTestConf
   @Test
   public void testGetVendorId() throws IOException {
     mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    doReturn(rootProxyCustomLabels).when(Json.mapper).readValue(anyString(), any(Class.class));
+    doReturn(rootProxyCustomLabels).when(Json.mapper).readValue(any(JsonParser.class), any(Class.class));
     CompletableFuture<Long> completableFuture = providerHoldingsIQService.getVendorId();
 
     assertTrue(isCompletedNormally(completableFuture));
@@ -79,9 +78,9 @@ public class ProviderHoldingsIQServiceImplTest extends HoldingsIQServiceTestConf
   }
 
   @Test
-  public void testRetrieveVendorsCompleteExceptionallyWhenThrowServiceException() throws JsonProcessingException {
+  public void testRetrieveVendorsCompleteExceptionallyWhenThrowServiceException() throws IOException {
     mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    doThrow(JsonParseException.class).when(Json.mapper).readValue(anyString(), any(Class.class));
+    doThrow(JsonParseException.class).when(Json.mapper).readValue(any(JsonParser.class), any(Class.class));
 
     CompletableFuture<Vendors> future = providerHoldingsIQService.retrieveProviders("Busket",
       PAGE_FOR_PARAM, COUNT_FOR_PARAM, Sort.NAME);

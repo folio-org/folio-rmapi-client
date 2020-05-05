@@ -1,26 +1,27 @@
 package org.folio.holdingsiq.service.impl;
 
-import io.vertx.core.json.Json;
-import org.apache.http.HttpStatus;
-import org.folio.holdingsiq.model.Sort;
-import org.folio.holdingsiq.model.Title;
-import org.folio.holdingsiq.model.Titles;
-import org.folio.holdingsiq.service.TitlesHoldingsIQService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+
+import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
+import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAndCreate;
 
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 
-import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
-import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAndCreate;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import com.fasterxml.jackson.core.JsonParser;
+import io.vertx.core.json.Json;
+import org.apache.http.HttpStatus;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
+import org.folio.holdingsiq.model.Sort;
+import org.folio.holdingsiq.model.Title;
+import org.folio.holdingsiq.model.Titles;
+import org.folio.holdingsiq.service.TitlesHoldingsIQService;
 
 public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
@@ -40,7 +41,7 @@ public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig
   @Test
   public void testRetrieveTitles() throws IOException {
     mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    doReturn(titles).when(Json.mapper).readValue(anyString(), any(Class.class));
+    doReturn(titles).when(Json.mapper).readValue(any(JsonParser.class), any(Class.class));
 
     CompletableFuture<Titles> completableFuture = titlesHoldingsIQService.retrieveTitles(filterQuery, Sort.NAME,
       PAGE_FOR_PARAM, COUNT_FOR_PARAM);
@@ -54,7 +55,7 @@ public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig
   @Test
   public void testRetrieveTitlesWithVendorId() throws IOException {
     mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    doReturn(titles).when(Json.mapper).readValue(anyString(), any(Class.class));
+    doReturn(titles).when(Json.mapper).readValue(any(JsonParser.class), any(Class.class));
 
     CompletableFuture<Titles> completableFuture = titlesHoldingsIQService.retrieveTitles(VENDOR_ID, PACKAGE_ID, filterQuery,
       Sort.NAME, PAGE_FOR_PARAM, COUNT_FOR_PARAM);
@@ -79,7 +80,7 @@ public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig
   public void testPostTitle() throws IOException {
     mockResponseForUpdateAndCreate(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK, HttpStatus.SC_OK);
 
-    doReturn(titleCreated).when(Json.mapper).readValue(anyString(), any(Class.class));
+    doReturn(titleCreated).when(Json.mapper).readValue(any(JsonParser.class), any(Class.class));
     CompletableFuture<Title> completableFuture = titlesHoldingsIQService.postTitle(titlePost, packageId);
 
     assertTrue(isCompletedNormally(completableFuture));

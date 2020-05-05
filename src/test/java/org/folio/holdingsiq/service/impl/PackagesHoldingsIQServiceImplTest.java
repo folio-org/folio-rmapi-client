@@ -1,27 +1,28 @@
 package org.folio.holdingsiq.service.impl;
 
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
+
+import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
+import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAndCreate;
+
+import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
+
+import com.fasterxml.jackson.core.JsonParser;
 import io.vertx.core.json.Json;
 import org.apache.http.HttpStatus;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+
 import org.folio.holdingsiq.model.PackageByIdData;
 import org.folio.holdingsiq.model.PackagePut;
 import org.folio.holdingsiq.model.Packages;
 import org.folio.holdingsiq.model.Sort;
 import org.folio.holdingsiq.service.PackagesHoldingsIQService;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-
-import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
-import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAndCreate;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
@@ -94,7 +95,7 @@ public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConf
   public void testPostPackage() throws IOException {
     mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
 
-    doReturn(packageCreated).when(Json.mapper).readValue(anyString(), any(Class.class));
+    doReturn(packageCreated).when(Json.mapper).readValue(any(JsonParser.class), any(Class.class));
     CompletableFuture<PackageByIdData> completableFuture = packagesHoldingsIQService.postPackage(packagePost, VENDOR_ID);
 
     assertTrue(isCompletedNormally(completableFuture));
