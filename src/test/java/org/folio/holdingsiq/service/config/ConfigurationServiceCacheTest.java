@@ -134,7 +134,7 @@ public class ConfigurationServiceCacheTest {
   }
 
   @Test
-  public void shouldStoreVerifiedConfigurationInCache1() throws ExecutionException, InterruptedException {
+  public void shouldReturnTokenExceptionAsVerificationError() throws ExecutionException, InterruptedException {
     when(configService.verifyCredentials(STUB_CONFIGURATION, context, OKAPI_DATA)).thenReturn(completedFuture(emptyList()));
     when(TokenUtils.fetchUserInfo(OKAPI_DATA.getApiToken()))
       .thenReturn(FutureUtils.failedFuture(new RuntimeException("EXCEPTION")));
