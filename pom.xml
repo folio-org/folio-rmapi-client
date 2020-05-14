@@ -22,7 +22,7 @@
     <vertx.version>3.8.4</vertx.version>
     <junit.version>4.12</junit.version>
     <powermock.version>2.0.2</powermock.version>
-    <folio-service-tools.version>1.4.2-SNAPSHOT</folio-service-tools.version>
+    <folio-service-tools.version>1.4.3-SNAPSHOT</folio-service-tools.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 

@@ -48,7 +48,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   private final WebClient client;
 
-
   public ConfigurationServiceImpl(Vertx vertx) {
     this.client = WebClient.create(vertx);
   }
@@ -74,24 +73,23 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   private CompletableFuture<JsonObject> getUserCredentials(OkapiData okapiData) {
-    return mapVertxFuture(getJson(USER_CREDS_URL, okapiData)).whenComplete(this::logCredentialsRetrievalResult);
+    return mapVertxFuture(getJson(okapiData)).whenComplete(this::logCredentialsRetrievalResult);
   }
 
   private void logCredentialsRetrievalResult(JsonObject creds, Throwable t) {
     if (t != null) {
-      LOG.info("Failed to retrieve user credentials: " + t);
+      LOG.info("Failed to retrieve user credentials: {}", t.toString());
     } else {
       CredentialsReader reader = CredentialsReader.from(creds);
 
-      LOG.info("User credentials retrieved: id = '" + reader.getId() + "', " +
-        "name = '" + reader.getName() + "'");
+      LOG.info("User credentials retrieved: id = '{}', name = '{}'", reader.getId(), reader.getName());
     }
   }
 
-  private Future<JsonObject> getJson(String requestUrl, OkapiData okapiData) {
+  private Future<JsonObject> getJson(OkapiData okapiData) {
     Promise<HttpResponse<Buffer>> promise = Promise.promise();
 
-    client.get(okapiData.getOkapiPort(), okapiData.getOkapiHost(), requestUrl)
+    client.get(okapiData.getOkapiPort(), okapiData.getOkapiHost(), USER_CREDS_URL)
       .putHeader(OKAPI_HEADER_TENANT, TenantTool.calculateTenantId(okapiData.getTenant()))
       .putHeader(OKAPI_HEADER_TOKEN, okapiData.getApiToken())
       .putHeader(ACCEPT, JSON_API_TYPE)
@@ -101,7 +99,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return promise.future().compose(res ->
       res.statusCode() == HttpStatus.SC_OK
         ? succeededFuture(res.bodyAsJsonObject())
-        : failedFuture(new ConfigurationServiceException(res.toString(), res.statusCode())));
+        : failedFuture(new ConfigurationServiceException(res.bodyAsString(), res.statusCode())));
   }
 
   private Configuration credentialsToConfiguration(JsonObject creds) {
@@ -139,15 +137,15 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private static final JsonObject EMPTY_JSON = new JsonObject();
 
-    private String id;
-    private JsonObject attrs;
-
+    private final String id;
+    private final JsonObject attrs;
 
     CredentialsReader(JsonObject json) {
       if (json != null) {
         id = json.getString("id");
         attrs = json.getJsonObject("attributes", EMPTY_JSON);
       } else {
+        id = null;
         attrs = EMPTY_JSON;
       }
     }
