@@ -73,20 +73,21 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   private CompletableFuture<JsonObject> getUserCredentials(OkapiData okapiData) {
-    return mapVertxFuture(getJson(okapiData)).whenComplete(this::logCredentialsRetrievalResult);
+    return mapVertxFuture(getCredentialsJson(okapiData)).whenComplete(this::logCredentialsRetrievalResult);
   }
 
   private void logCredentialsRetrievalResult(JsonObject creds, Throwable t) {
     if (t != null) {
-      LOG.info("Failed to retrieve user credentials: {}", t.toString());
+      LOG.info("Failed to retrieve user credentials: " + t);
     } else {
       CredentialsReader reader = CredentialsReader.from(creds);
 
-      LOG.info("User credentials retrieved: id = '{}', name = '{}'", reader.getId(), reader.getName());
+      LOG.info("User credentials retrieved: id = '" + reader.getId() + "', " +
+        "name = '" + reader.getName() + "'");
     }
   }
 
-  private Future<JsonObject> getJson(OkapiData okapiData) {
+  private Future<JsonObject> getCredentialsJson(OkapiData okapiData) {
     Promise<HttpResponse<Buffer>> promise = Promise.promise();
 
     client.get(okapiData.getOkapiPort(), okapiData.getOkapiHost(), USER_CREDS_URL)
@@ -137,15 +138,14 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private static final JsonObject EMPTY_JSON = new JsonObject();
 
-    private final String id;
-    private final JsonObject attrs;
+    private String id;
+    private JsonObject attrs;
 
     CredentialsReader(JsonObject json) {
       if (json != null) {
         id = json.getString("id");
         attrs = json.getJsonObject("attributes", EMPTY_JSON);
       } else {
-        id = null;
         attrs = EMPTY_JSON;
       }
     }
