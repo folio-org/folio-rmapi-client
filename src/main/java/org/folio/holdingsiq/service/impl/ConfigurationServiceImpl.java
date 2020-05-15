@@ -48,7 +48,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   private final WebClient client;
 
-
   public ConfigurationServiceImpl(Vertx vertx) {
     this.client = WebClient.create(vertx);
   }
@@ -74,7 +73,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
   }
 
   private CompletableFuture<JsonObject> getUserCredentials(OkapiData okapiData) {
-    return mapVertxFuture(getJson(USER_CREDS_URL, okapiData)).whenComplete(this::logCredentialsRetrievalResult);
+    return mapVertxFuture(getCredentialsJson(okapiData)).whenComplete(this::logCredentialsRetrievalResult);
   }
 
   private void logCredentialsRetrievalResult(JsonObject creds, Throwable t) {
@@ -88,10 +87,10 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     }
   }
 
-  private Future<JsonObject> getJson(String requestUrl, OkapiData okapiData) {
+  private Future<JsonObject> getCredentialsJson(OkapiData okapiData) {
     Promise<HttpResponse<Buffer>> promise = Promise.promise();
 
-    client.get(okapiData.getOkapiPort(), okapiData.getOkapiHost(), requestUrl)
+    client.get(okapiData.getOkapiPort(), okapiData.getOkapiHost(), USER_CREDS_URL)
       .putHeader(OKAPI_HEADER_TENANT, TenantTool.calculateTenantId(okapiData.getTenant()))
       .putHeader(OKAPI_HEADER_TOKEN, okapiData.getApiToken())
       .putHeader(ACCEPT, JSON_API_TYPE)
@@ -101,7 +100,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
     return promise.future().compose(res ->
       res.statusCode() == HttpStatus.SC_OK
         ? succeededFuture(res.bodyAsJsonObject())
-        : failedFuture(new ConfigurationServiceException(res.toString(), res.statusCode())));
+        : failedFuture(new ConfigurationServiceException(res.bodyAsString(), res.statusCode())));
   }
 
   private Configuration credentialsToConfiguration(JsonObject creds) {
@@ -141,7 +140,6 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     private String id;
     private JsonObject attrs;
-
 
     CredentialsReader(JsonObject json) {
       if (json != null) {
