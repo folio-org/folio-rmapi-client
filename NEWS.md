@@ -1,3 +1,7 @@
+## 1.8.0 2020-05-18
+* MODKBEKBJ-381 - Using a different RM API Endpoint for status checks
+* MODKBEKBJ-432 - Get configuration settings from eHoldings
+* Save okapi headers inside OkapiData
 ## 1.7.0 2020-02-11
 * MODKBEKBJ-334 - Add userDefinedFields to TitlePost
 * MODKBEKBJ-335 - Add userDefinedFields to PUT resource request
