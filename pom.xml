@@ -19,23 +19,38 @@
   </licenses>
 
   <properties>
+    <folio-service-tools.version>1.4.3</folio-service-tools.version>
     <vertx.version>3.8.4</vertx.version>
+    <lombok.version>1.18.6</lombok.version>
+    <jackson.version>2.10.1</jackson.version>
+    <commons-validator.version>1.6</commons-validator.version>
+    <log4j-slf4j-impl.version>2.9.1</log4j-slf4j-impl.version>
+
     <junit.version>4.12</junit.version>
+    <mockito.version>2.24.5</mockito.version>
+    <wiremock.version>2.19.0</wiremock.version>
     <powermock.version>2.0.2</powermock.version>
-    <folio-service-tools.version>1.4.3-SNAPSHOT</folio-service-tools.version>
+    <rest-assured.version>3.1.1</rest-assured.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
   </properties>
+
 
   <dependencies>
     <dependency>
+      <groupId>org.folio</groupId>
+      <artifactId>folio-service-tools-dev</artifactId>
+      <version>${folio-service-tools.version}</version>
+    </dependency>
+    <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-core</artifactId>
-      <version>2.10.1</version>
+      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
-      <version>2.10.1</version>
+      <version>${jackson.version}</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -58,25 +73,20 @@
       <version>${vertx.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.folio</groupId>
-      <artifactId>folio-service-tools-dev</artifactId>
-      <version>${folio-service-tools.version}</version>
-    </dependency>
-    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.6</version>
+      <version>${lombok.version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>
-      <version>2.9.1</version>
+      <version>${log4j-slf4j-impl.version}</version>
     </dependency>
     <dependency>
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
-      <version>1.6</version>
+      <version>${commons-validator.version}</version>
     </dependency>
     <dependency>
       <groupId>io.vertx</groupId>
@@ -93,19 +103,19 @@
     <dependency>
       <groupId>io.rest-assured</groupId>
       <artifactId>rest-assured</artifactId>
-      <version>3.1.1</version>
+      <version>${rest-assured.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>com.github.tomakehurst</groupId>
       <artifactId>wiremock</artifactId>
-      <version>2.19.0</version>
+      <version>${wiremock.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>2.24.5</version>
+      <version>${mockito.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
