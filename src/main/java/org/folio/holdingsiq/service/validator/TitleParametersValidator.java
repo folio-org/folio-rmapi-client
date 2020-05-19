@@ -23,8 +23,7 @@ public class TitleParametersValidator {
    * @throws ValidationException if validation fails
    */
   public void validate(FilterQuery filterQuery, String sort) {
-    Boolean allowNullFilters = false;
-    validateFilter(filterQuery, allowNullFilters);
+    validateFilter(filterQuery, false);
     validateSort(sort);
   }
 

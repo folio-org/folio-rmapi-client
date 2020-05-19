@@ -6,12 +6,10 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 
 
 @Getter
@@ -20,6 +18,7 @@ import lombok.Value;
 @AllArgsConstructor(onConstructor = @__(@JsonIgnore))
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class ResourcePut {
+
   @JsonProperty("isHidden")
   private Boolean isHidden;
   @JsonProperty("titleName")

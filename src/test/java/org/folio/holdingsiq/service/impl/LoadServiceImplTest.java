@@ -2,6 +2,9 @@ package org.folio.holdingsiq.service.impl;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
 import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
@@ -10,29 +13,30 @@ import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
+import com.fasterxml.jackson.core.JsonParser;
+import io.vertx.core.json.Json;
 import org.apache.http.HttpStatus;
-import org.folio.holdingsiq.model.DeltaReport;
-import org.folio.holdingsiq.model.DeltaReportStatus;
-import org.folio.holdingsiq.model.HoldingsLoadTransactionStatus;
-import org.folio.holdingsiq.model.HoldingsTransactionIdsList;
-import org.folio.holdingsiq.model.TransactionId;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import org.folio.holdingsiq.model.DeltaReport;
+import org.folio.holdingsiq.model.DeltaReportStatus;
 import org.folio.holdingsiq.model.Holdings;
 import org.folio.holdingsiq.model.HoldingsLoadStatus;
+import org.folio.holdingsiq.model.HoldingsLoadTransactionStatus;
+import org.folio.holdingsiq.model.HoldingsTransactionIdsList;
+import org.folio.holdingsiq.model.TransactionId;
 import org.folio.holdingsiq.service.LoadService;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-
 public class LoadServiceImplTest extends HoldingsIQServiceTestConfig {
+
   private static final String PREVIOUS_TRANSACTION_ID = "abcd3ab0-da4b-4a1f-a004-a9d323e54cde";
   private static final String TRANSACTION_ID = "84113ab0-da4b-4a1f-a004-a9d686e54811";
 
   private static final String DELTA_ID = "7e3537a0-3f30-4ef8-9470-dd0a87ac1066";
-  private LoadService loadService =
-    new LoadServiceImpl(HoldingsIQServiceImplTest.CONFIGURATION, mockVertx);
+
+  private final LoadService loadService = new LoadServiceImpl(HoldingsIQServiceImplTest.CONFIGURATION, mockVertx);
 
   @Before
   public void setUp() throws IOException {
@@ -54,13 +58,15 @@ public class LoadServiceImplTest extends HoldingsIQServiceTestConfig {
   }
 
   @Test
-  public void testPostHoldingsTransaction() throws ExecutionException, InterruptedException {
-    String transactionId = TRANSACTION_ID;
-    mockResponse(mockResponseBody, mockResponse, "{\"transactionId\": \"" + transactionId + "\"}", HttpStatus.SC_ACCEPTED);
+  public void testPostHoldingsTransaction() throws ExecutionException, InterruptedException, IOException {
+    TransactionId response = TransactionId.builder().transactionId(TRANSACTION_ID).build();
+    mockResponse(mockResponseBody, mockResponse, Json.encode(response), HttpStatus.SC_ACCEPTED);
+    doReturn(response).when(Json.mapper).readValue(any(JsonParser.class), eq(TransactionId.class));
+
     CompletableFuture<TransactionId> completableFuture = loadService.populateHoldingsTransaction();
 
     assertTrue(isCompletedNormally(completableFuture));
-    assertEquals(transactionId, completableFuture.get().getTransactionId());
+    assertEquals(TRANSACTION_ID, completableFuture.get().getTransactionId());
     verify(mockClient).postAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/reports/holdings?format=kbart2");
   }
 
