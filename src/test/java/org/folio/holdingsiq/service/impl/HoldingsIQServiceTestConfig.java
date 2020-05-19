@@ -3,6 +3,7 @@ package org.folio.holdingsiq.service.impl;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
@@ -10,6 +11,21 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.vertx.core.Handler;
+import io.vertx.core.MultiMap;
+import io.vertx.core.Vertx;
+import io.vertx.core.buffer.Buffer;
+import io.vertx.core.http.CaseInsensitiveHeaders;
+import io.vertx.core.http.HttpClient;
+import io.vertx.core.http.HttpClientRequest;
+import io.vertx.core.http.HttpClientResponse;
+import io.vertx.core.json.Json;
+import org.mockito.ArgumentCaptor;
+import org.mockito.stubbing.Answer;
 
 import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.model.FilterQuery;
@@ -24,22 +40,9 @@ import org.folio.holdingsiq.model.TitlePost;
 import org.folio.holdingsiq.model.Titles;
 import org.folio.holdingsiq.model.VendorPut;
 import org.folio.holdingsiq.service.HoldingsIQService;
-import org.mockito.ArgumentCaptor;
-import org.mockito.stubbing.Answer;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.vertx.core.Handler;
-import io.vertx.core.MultiMap;
-import io.vertx.core.Vertx;
-import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.CaseInsensitiveHeaders;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientRequest;
-import io.vertx.core.http.HttpClientResponse;
-import io.vertx.core.json.Json;
 
 public class HoldingsIQServiceTestConfig {
+
   protected static final String STUB_CUSTOMER_ID = "TEST_CUSTOMER_ID";
   protected static final String STUB_API_KEY = "test_key";
   protected static final String STUB_BASE_URL = "https://sandbox.ebsco.io";
@@ -49,7 +52,8 @@ public class HoldingsIQServiceTestConfig {
   protected static final Long PACKAGE_ID = 2222L;
   protected static final Long TITLE_ID = 3333L;
   protected static final Long VENDOR_ID = 5555L;
-  protected static final Configuration CONFIGURATION = Configuration.builder().customerId(STUB_CUSTOMER_ID).apiKey(STUB_API_KEY).url(STUB_BASE_URL).build();
+  protected static final Configuration CONFIGURATION =
+    Configuration.builder().customerId(STUB_CUSTOMER_ID).apiKey(STUB_API_KEY).url(STUB_BASE_URL).build();
 
   protected Vertx mockVertx = mock(Vertx.class);
   protected HttpClient mockClient = mock(HttpClient.class);
@@ -71,7 +75,8 @@ public class HoldingsIQServiceTestConfig {
   protected TitleCreated titleCreated = TitleCreated.builder().titleId(TITLE_ID).build();
   protected PackageCreated packageCreated = PackageCreated.builder().packageId(PACKAGE_ID).build();
   protected Titles titles = Titles.builder().titleList(Collections.emptyList()).build();
-  protected RootProxyCustomLabels rootProxyCustomLabels = RootProxyCustomLabels.builder().vendorId(String.valueOf(VENDOR_ID)).build();
+  protected RootProxyCustomLabels rootProxyCustomLabels =
+    RootProxyCustomLabels.builder().vendorId(String.valueOf(VENDOR_ID)).build();
   protected PackageId packageId = PackageId.builder().providerIdPart(VENDOR_ID).packageIdPart(PACKAGE_ID).build();
   protected ResourceId resourceId = ResourceId.builder().providerIdPart(VENDOR_ID)
     .packageIdPart(PACKAGE_ID).titleIdPart(TITLE_ID).build();
@@ -97,6 +102,13 @@ public class HoldingsIQServiceTestConfig {
     Json.prettyMapper = spy(Json.prettyMapper);
     Json.mapper = spy(Json.mapper);
     when(Json.prettyMapper.writeValueAsString(any())).thenReturn(DUMMY_RESPONSE_BODY);
+
+    JsonParser jsonParser = mock(JsonParser.class);
+    when(jsonParser.nextToken()).thenReturn(null);
+    JsonFactory jsonFactory = mock(JsonFactory.class);
+    when(jsonFactory.createParser(any(String.class))).thenReturn(jsonParser);
+    when(Json.mapper.getFactory()).thenReturn(jsonFactory);
+    doReturn(null).when(Json.mapper).readValue(any(JsonParser.class), any(Class.class));
   }
 
   protected void tearDownStep() {
@@ -104,7 +116,7 @@ public class HoldingsIQServiceTestConfig {
     Json.prettyMapper = savedPrettyMapper;
   }
 
-  protected boolean isCompletedNormally(CompletableFuture completableFuture) {
+  protected boolean isCompletedNormally(CompletableFuture<?> completableFuture) {
     return completableFuture.isDone() && !completableFuture.isCompletedExceptionally() && !completableFuture.isCancelled();
   }
 
@@ -116,7 +128,7 @@ public class HoldingsIQServiceTestConfig {
     };
   }
 
-  private Answer callHandlerWithResponse(ArgumentCaptor<Handler<HttpClientResponse>> requestHandler) {
+  private Answer<?> callHandlerWithResponse(ArgumentCaptor<Handler<HttpClientResponse>> requestHandler) {
     return invocation -> {
       requestHandler.getValue().handle(mockResponse);
       return null;

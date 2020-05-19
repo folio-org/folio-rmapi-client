@@ -19,10 +19,10 @@
   </licenses>
 
   <properties>
-    <folio-service-tools.version>1.4.3</folio-service-tools.version>
-    <vertx.version>3.8.4</vertx.version>
+    <folio-service-tools.version>1.4.4-SNAPSHOT</folio-service-tools.version>
+    <vertx.version>3.9.0</vertx.version>
     <lombok.version>1.18.6</lombok.version>
-    <jackson.version>2.10.1</jackson.version>
+    <jackson.version>2.10.2</jackson.version>
     <commons-validator.version>1.6</commons-validator.version>
     <log4j-slf4j-impl.version>2.9.1</log4j-slf4j-impl.version>
 
@@ -133,13 +133,6 @@
   </dependencies>
 
   <build>
-    <resources>
-      <resource>
-        <directory>src/main/resources</directory>
-        <filtering>true</filtering>
-      </resource>
-    </resources>
-
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

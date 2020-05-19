@@ -26,7 +26,7 @@ import org.folio.holdingsiq.service.PackagesHoldingsIQService;
 
 public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
-  private PackagesHoldingsIQService packagesHoldingsIQService =
+  private final PackagesHoldingsIQService packagesHoldingsIQService =
     new PackagesHoldingsIQServiceImpl(HoldingsIQServiceImplTest.CONFIGURATION, mockVertx);
 
   @Before
@@ -63,8 +63,9 @@ public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConf
   }
 
   @Test
-  public void testRetrievePackage() {
+  public void testRetrievePackage() throws IOException {
     mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
+    doReturn(packageCreated).when(Json.mapper).readValue(any(JsonParser.class), any(Class.class));
     CompletableFuture<PackageByIdData> completableFuture = packagesHoldingsIQService.retrievePackage(packageId);
 
     assertTrue(isCompletedNormally(completableFuture));
