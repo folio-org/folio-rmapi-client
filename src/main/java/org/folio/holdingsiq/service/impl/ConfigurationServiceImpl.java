@@ -34,6 +34,7 @@ import org.folio.holdingsiq.model.ConfigurationError;
 import org.folio.holdingsiq.model.OkapiData;
 import org.folio.holdingsiq.service.ConfigurationService;
 import org.folio.holdingsiq.service.exception.ConfigurationServiceException;
+import org.folio.holdingsiq.service.exception.ServiceResponseException;
 import org.folio.rest.tools.utils.TenantTool;
 
 /**
@@ -66,10 +67,27 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       return completedFuture(errors);
     }
 
-    return new HoldingsIQServiceImpl(configuration, vertxContext.owner())
+    CompletableFuture<List<ConfigurationError>> resultFuture = new CompletableFuture<>();
+
+    new HoldingsIQServiceImpl(configuration, vertxContext.owner())
       .verifyCredentials()
-      .thenCompose(o -> completedFuture(Collections.<ConfigurationError>emptyList()))
-      .exceptionally(e -> Collections.singletonList(new ConfigurationError("KB API Credentials are invalid")));
+      .thenAccept(o -> resultFuture.complete(Collections.<ConfigurationError>emptyList()))
+      .exceptionally(e -> {
+        Throwable cause = e.getCause();
+        if (cause instanceof ServiceResponseException) {
+          Integer code = ((ServiceResponseException) cause).getCode();
+          if (code == 401 || code == 403 || code == 404) {
+            resultFuture.complete(Collections.singletonList(new ConfigurationError("KB API Credentials are invalid")));
+          } else {
+            resultFuture.completeExceptionally(cause);
+          }
+        } else {
+          resultFuture.completeExceptionally(cause);
+        }
+        return null;
+      });
+
+    return resultFuture;
   }
 
   private CompletableFuture<JsonObject> getUserCredentials(OkapiData okapiData) {
