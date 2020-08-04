@@ -71,23 +71,27 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
     new HoldingsIQServiceImpl(configuration, vertxContext.owner())
       .verifyCredentials()
-      .thenAccept(o -> resultFuture.complete(Collections.<ConfigurationError>emptyList()))
-      .exceptionally(e -> {
-        Throwable cause = e.getCause();
-        if (cause instanceof ServiceResponseException) {
-          Integer code = ((ServiceResponseException) cause).getCode();
-          if (code == 401 || code == 403 || code == 404) {
-            resultFuture.complete(Collections.singletonList(new ConfigurationError("KB API Credentials are invalid")));
-          } else {
-            resultFuture.completeExceptionally(cause);
-          }
+      .thenAccept(o -> resultFuture.complete(Collections.emptyList()))
+      .exceptionally(exception -> {
+        if (isInvalidConfigurationException(exception)) {
+          resultFuture.complete(Collections.singletonList(new ConfigurationError("KB API Credentials are invalid")));
         } else {
-          resultFuture.completeExceptionally(cause);
+          resultFuture.completeExceptionally(exception.getCause());
         }
         return null;
       });
 
     return resultFuture;
+  }
+
+  private boolean isInvalidConfigurationException(Throwable exception) {
+    Throwable cause = exception.getCause();
+    return cause instanceof ServiceResponseException
+      && isInvalidConfigurationStatusCode(((ServiceResponseException) cause).getCode());
+  }
+
+  private boolean isInvalidConfigurationStatusCode(Integer statusCode) {
+    return statusCode == 401 || statusCode == 403 || statusCode == 404;
   }
 
   private CompletableFuture<JsonObject> getUserCredentials(OkapiData okapiData) {
