@@ -34,6 +34,7 @@ import org.folio.holdingsiq.model.ConfigurationError;
 import org.folio.holdingsiq.model.OkapiData;
 import org.folio.holdingsiq.service.ConfigurationService;
 import org.folio.holdingsiq.service.exception.ConfigurationServiceException;
+import org.folio.holdingsiq.service.exception.ServiceResponseException;
 import org.folio.rest.tools.utils.TenantTool;
 
 /**
@@ -66,10 +67,31 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       return completedFuture(errors);
     }
 
-    return new HoldingsIQServiceImpl(configuration, vertxContext.owner())
+    CompletableFuture<List<ConfigurationError>> resultFuture = new CompletableFuture<>();
+
+    new HoldingsIQServiceImpl(configuration, vertxContext.owner())
       .verifyCredentials()
-      .thenCompose(o -> completedFuture(Collections.<ConfigurationError>emptyList()))
-      .exceptionally(e -> Collections.singletonList(new ConfigurationError("KB API Credentials are invalid")));
+      .thenAccept(o -> resultFuture.complete(Collections.emptyList()))
+      .exceptionally(exception -> {
+        if (isInvalidConfigurationException(exception)) {
+          resultFuture.complete(Collections.singletonList(new ConfigurationError("KB API Credentials are invalid")));
+        } else {
+          resultFuture.completeExceptionally(exception.getCause());
+        }
+        return null;
+      });
+
+    return resultFuture;
+  }
+
+  private boolean isInvalidConfigurationException(Throwable exception) {
+    Throwable cause = exception.getCause();
+    return cause instanceof ServiceResponseException
+      && isInvalidConfigurationStatusCode(((ServiceResponseException) cause).getCode());
+  }
+
+  private boolean isInvalidConfigurationStatusCode(Integer statusCode) {
+    return statusCode == 401 || statusCode == 403 || statusCode == 404;
   }
 
   private CompletableFuture<JsonObject> getUserCredentials(OkapiData okapiData) {
