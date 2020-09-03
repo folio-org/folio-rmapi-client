@@ -4,7 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Supplier;
@@ -45,7 +45,7 @@ public class VertxCacheTest {
     CompletableFuture<String> returnedValue = testCache.getValueOrLoad(KEY, loader);
     assertEquals(VALUE, testCache.getValue(KEY));
     assertEquals(VALUE, returnedValue.join());
-    verifyZeroInteractions(loader);
+    verifyNoInteractions(loader);
   }
 
   @Test

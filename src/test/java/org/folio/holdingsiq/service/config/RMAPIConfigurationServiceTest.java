@@ -12,7 +12,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.mockito.MockitoAnnotations.openMocks;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import static org.folio.holdingsiq.service.config.ConfigTestData.OKAPI_DATA;
@@ -71,8 +71,8 @@ public class RMAPIConfigurationServiceTest {
   private ConfigurationServiceImpl service;
 
   @Before
-  public void setUp() {
-    initMocks(this);
+  public void setUp() throws Exception {
+    openMocks(this).close();
 
     mockStatic(WebClient.class);
     when(WebClient.create(vertx)).thenReturn(webClient);

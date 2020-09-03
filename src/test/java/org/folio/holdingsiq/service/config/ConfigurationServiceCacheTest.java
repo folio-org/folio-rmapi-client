@@ -2,6 +2,7 @@ package org.folio.holdingsiq.service.config;
 
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.CompletableFuture.completedFuture;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.empty;
@@ -9,13 +10,12 @@ import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
+import static org.mockito.MockitoAnnotations.openMocks;
 import static org.powermock.api.mockito.PowerMockito.mockStatic;
 import static org.powermock.api.mockito.PowerMockito.verifyStatic;
 
@@ -63,8 +63,8 @@ public class ConfigurationServiceCacheTest {
 
 
   @Before
-  public void setUp() {
-    initMocks(this);
+  public void setUp() throws Exception {
+    openMocks(this).close();
     mockStatic(TokenUtils.class);
 
     testCache = new VertxCache<>(Vertx.vertx(), 60, "testCache");
@@ -90,7 +90,7 @@ public class ConfigurationServiceCacheTest {
     Configuration config = cacheService.retrieveConfiguration(OKAPI_DATA).get();
 
     assertThat(config, sameInstance(STUB_CONFIGURATION));
-    verifyZeroInteractions(configService);
+    verifyNoInteractions(configService);
   }
 
   @Test
@@ -100,7 +100,7 @@ public class ConfigurationServiceCacheTest {
 
     assertThat(errors, Matchers.empty());
 
-    verifyZeroInteractions(configService);
+    verifyNoInteractions(configService);
     verifyTokenUtils(never());
   }
 
