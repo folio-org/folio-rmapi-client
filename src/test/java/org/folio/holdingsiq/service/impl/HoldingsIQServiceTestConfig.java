@@ -19,7 +19,6 @@ import io.vertx.core.Handler;
 import io.vertx.core.MultiMap;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.CaseInsensitiveHeaders;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpClientResponse;
@@ -60,7 +59,7 @@ public class HoldingsIQServiceTestConfig {
   protected HttpClientRequest mockRequest = mock(HttpClientRequest.class);
   protected HttpClientResponse mockResponse = mock(HttpClientResponse.class);
   protected Buffer mockResponseBody = mock(Buffer.class);
-  protected MultiMap stubHeaderMap = new CaseInsensitiveHeaders();
+  protected MultiMap stubHeaderMap = MultiMap.caseInsensitiveMultiMap();
   protected HoldingsIQService service = new HoldingsIQServiceImpl(CONFIGURATION, mockVertx);
   protected ArgumentCaptor<String> url = ArgumentCaptor.forClass(String.class);
 
