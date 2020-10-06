@@ -1,3 +1,7 @@
+## 1.10.0 2020-10-06
+* MODKBEKBJ-463 Change status endpoint to send correct messages
+* FHIQC-3 Migrate to JDK 11
+
 ## 1.9.0 2020-06-07
 * FHIQC-1 - Update Vert.X to v3.9.0
 
