@@ -2,6 +2,7 @@ package org.folio.holdingsiq.service.impl;
 
 import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.PACKAGES_PATH;
 import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.VENDORS_PATH;
+import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.successBodyLogger;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -21,10 +22,11 @@ import org.folio.holdingsiq.service.impl.urlbuilder.PackagesFilterableUrlBuilder
 
 public class PackagesHoldingsIQServiceImpl implements PackagesHoldingsIQService {
 
-  private HoldingsRequestHelper holdingsRequestHelper;
+  private final HoldingsRequestHelper holdingsRequestHelper;
 
   public PackagesHoldingsIQServiceImpl(Configuration config, Vertx vertx) {
     holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
+    holdingsRequestHelper.addBodyListener(successBodyLogger());
   }
 
   @Override

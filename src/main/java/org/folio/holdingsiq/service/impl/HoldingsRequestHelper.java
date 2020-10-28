@@ -2,6 +2,8 @@ package org.folio.holdingsiq.service.impl;
 
 import static java.lang.String.format;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.Vertx;
@@ -45,12 +47,23 @@ class HoldingsRequestHelper {
   private String baseURI;
 
   private Vertx vertx;
+  private List<HoldingsResponseBodyListener> bodyListeners;
 
+  
   HoldingsRequestHelper(Configuration config, Vertx vertx) {
     this.customerId = config.getCustomerId();
     this.apiKey = config.getApiKey();
     this.baseURI = config.getUrl();
     this.vertx = vertx;
+    this.bodyListeners= new ArrayList<>();
+  }
+
+  HoldingsRequestHelper addBodyListener(HoldingsResponseBodyListener listener) {
+    if (listener != null) {
+      bodyListeners.add(listener);
+    }
+    
+    return this;
   }
 
   <T> CompletableFuture<T> getRequest(String query, Class<T> clazz) {
@@ -81,6 +94,9 @@ class HoldingsRequestHelper {
 
     request.handler(response -> response.bodyHandler(body -> {
       httpClient.close();
+
+      fireBodyReceived(body, new HoldingsInteractionContext(query, null, request, response));
+
       if (response.statusCode() == 204) {
         future.complete(null);
       } else {
@@ -118,6 +134,9 @@ class HoldingsRequestHelper {
                                   HttpClient httpClient, HttpClientRequest request) {
     request.handler(response -> response.bodyHandler(body -> {
       httpClient.close();
+
+      fireBodyReceived(body, new HoldingsInteractionContext(query, clazz, request, response));
+
       if (response.statusCode() == 200 ||
         response.statusCode() == 202) {
         try {
@@ -139,6 +158,12 @@ class HoldingsRequestHelper {
         handleRMAPIError(response, query, body, future);
       }
     })).exceptionHandler(future::completeExceptionally);
+  }
+
+  private void fireBodyReceived(Buffer body, HoldingsInteractionContext context) {
+    for (HoldingsResponseBodyListener listener : bodyListeners) {
+      listener.bodyReceived(body, context);
+    }
   }
 
   void addRequestHeaders(HttpClientRequest request) {
@@ -187,4 +212,21 @@ class HoldingsRequestHelper {
     return fullPath;
   }
 
+  static HoldingsResponseBodyListener successBodyLogger() {
+    return new SuccessfulResponseBodyLogger();
+  }
+
+  private static class SuccessfulResponseBodyLogger implements HoldingsResponseBodyListener {
+
+    @Override
+    public void bodyReceived(Buffer body, HoldingsInteractionContext ctx) {
+      int sc = ctx.statusCode();
+
+      if (sc == 200 || sc == 201 || sc == 202 || sc == 204) {
+        LOG.info("[OK] RMAPI Service response: method = [{}], statusCode = [{}], body = [{}]",
+            ctx.httpMethod(), ctx.statusCode(), body.toString());
+      }
+    }
+
+  }
 }

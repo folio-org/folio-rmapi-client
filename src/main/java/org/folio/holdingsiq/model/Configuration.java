@@ -9,11 +9,11 @@ import lombok.Value;
  */
 @Value
 @Builder(toBuilder = true)
-public final class Configuration implements Shareable {
+public class Configuration implements Shareable {
 
-  private final String customerId;
-  private final String apiKey;
-  private final String url;
-  private final Boolean configValid;
+  String customerId;
+  String apiKey;
+  String url;
+  Boolean configValid;
 
 }
