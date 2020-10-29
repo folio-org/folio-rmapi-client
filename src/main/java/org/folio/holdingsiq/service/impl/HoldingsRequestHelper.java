@@ -213,20 +213,14 @@ class HoldingsRequestHelper {
   }
 
   static HoldingsResponseBodyListener successBodyLogger() {
-    return new SuccessfulResponseBodyLogger();
-  }
-
-  private static class SuccessfulResponseBodyLogger implements HoldingsResponseBodyListener {
-
-    @Override
-    public void bodyReceived(Buffer body, HoldingsInteractionContext ctx) {
+    return (body, ctx) -> {
       int sc = ctx.statusCode();
 
       if (sc == 200 || sc == 201 || sc == 202 || sc == 204) {
-        LOG.info("[OK] RMAPI Service response: method = [{}], statusCode = [{}], body = [{}]",
-            ctx.httpMethod(), ctx.statusCode(), body.toString());
+        LOG.info("[OK] RMAPI Service response: query = [{}], method = [{}], statusCode = [{}], body = [{}]",
+            ctx.getRequestUrl(), ctx.httpMethod(), sc, body.toString());
       }
-    }
-
+    };
   }
+
 }
