@@ -1,3 +1,6 @@
+## 1.10.1 2020-11-02
+* MODKBEKBJ-505 Log responses from HoldingsIQ/MODKBEKBJ
+
 ## 1.10.0 2020-10-06
 * MODKBEKBJ-463 Change status endpoint to send correct messages
 * FHIQC-3 Migrate to JDK 11
