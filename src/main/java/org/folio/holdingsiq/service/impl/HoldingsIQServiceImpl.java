@@ -1,5 +1,7 @@
 package org.folio.holdingsiq.service.impl;
 
+import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.successBodyLogger;
+
 import java.util.concurrent.CompletableFuture;
 
 import io.vertx.core.Vertx;
@@ -11,10 +13,11 @@ import org.folio.holdingsiq.service.HoldingsIQService;
 
 public class HoldingsIQServiceImpl implements HoldingsIQService {
 
-  private HoldingsRequestHelper holdingsRequestHelper;
+  private final HoldingsRequestHelper holdingsRequestHelper;
 
   public HoldingsIQServiceImpl(Configuration config, Vertx vertx) {
     holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
+    holdingsRequestHelper.addBodyListener(successBodyLogger());
   }
 
   @Override

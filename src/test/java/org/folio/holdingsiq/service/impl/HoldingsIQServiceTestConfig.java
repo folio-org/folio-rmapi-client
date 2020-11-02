@@ -38,7 +38,6 @@ import org.folio.holdingsiq.model.TitleCreated;
 import org.folio.holdingsiq.model.TitlePost;
 import org.folio.holdingsiq.model.Titles;
 import org.folio.holdingsiq.model.VendorPut;
-import org.folio.holdingsiq.service.HoldingsIQService;
 
 public class HoldingsIQServiceTestConfig {
 
@@ -60,7 +59,6 @@ public class HoldingsIQServiceTestConfig {
   protected HttpClientResponse mockResponse = mock(HttpClientResponse.class);
   protected Buffer mockResponseBody = mock(Buffer.class);
   protected MultiMap stubHeaderMap = MultiMap.caseInsensitiveMultiMap();
-  protected HoldingsIQService service = new HoldingsIQServiceImpl(CONFIGURATION, mockVertx);
   protected ArgumentCaptor<String> url = ArgumentCaptor.forClass(String.class);
 
   protected ObjectMapper savedPrettyMapper;

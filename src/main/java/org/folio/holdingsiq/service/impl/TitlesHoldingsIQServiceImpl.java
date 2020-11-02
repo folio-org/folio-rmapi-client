@@ -5,6 +5,7 @@ import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.PACKAGES_PATH;
 import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.TITLES_PATH;
 import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.VENDORS_PATH;
+import static org.folio.holdingsiq.service.impl.HoldingsRequestHelper.successBodyLogger;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -26,10 +27,11 @@ import org.folio.holdingsiq.service.impl.urlbuilder.TitlesFilterableUrlBuilder;
 
 public class TitlesHoldingsIQServiceImpl implements TitlesHoldingsIQService {
 
-  private HoldingsRequestHelper holdingsRequestHelper;
+  private final HoldingsRequestHelper holdingsRequestHelper;
 
   public TitlesHoldingsIQServiceImpl(Configuration config, Vertx vertx) {
     holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
+    holdingsRequestHelper.addBodyListener(successBodyLogger());
   }
 
   @Override
