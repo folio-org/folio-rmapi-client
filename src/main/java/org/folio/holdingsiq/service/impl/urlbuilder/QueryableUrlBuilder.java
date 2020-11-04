@@ -1,7 +1,7 @@
 package org.folio.holdingsiq.service.impl.urlbuilder;
 
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,11 +46,7 @@ public class QueryableUrlBuilder {
     List<String> parameters = new ArrayList<>();
     if (StringUtils.isNoneBlank(q)) {
       String encodedQuery;
-      try {
-        encodedQuery = URLEncoder.encode(q, "UTF-8");
-      } catch (UnsupportedEncodingException e) {
-        throw new IllegalStateException("failed to encode query using UTF-8", e);
-      }
+      encodedQuery = URLEncoder.encode(q, StandardCharsets.UTF_8);
       parameters.add("search=" + encodedQuery);
     }
     else {

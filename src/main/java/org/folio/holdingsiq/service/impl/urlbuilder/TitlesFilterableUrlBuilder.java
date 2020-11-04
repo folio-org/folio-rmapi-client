@@ -68,7 +68,7 @@ public class TitlesFilterableUrlBuilder {
     parameters.add("searchfield="+searchField);
     parameters.add("selection=" + selection);
     parameters.add("resourcetype=" + resourceType);
-    parameters.add("searchtype=advanced");
+    parameters.add("searchtype=contains");
 
     String query = new QueryableUrlBuilder()
       .q(search)
