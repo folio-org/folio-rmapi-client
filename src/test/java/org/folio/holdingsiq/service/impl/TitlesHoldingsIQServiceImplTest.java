@@ -49,7 +49,7 @@ public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig
     assertTrue(isCompletedNormally(completableFuture));
     verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
       + "/titles?searchfield=titlename&selection=all&resourcetype=all&searchtype=" +
-      "advanced&search=&offset=1&count=5&orderby=titlename");
+      "contains&search=&offset=1&count=5&orderby=titlename");
   }
 
   @Test
@@ -63,7 +63,7 @@ public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig
     assertTrue(isCompletedNormally(completableFuture));
     verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
       + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID + "/titles?searchfield=titlename&selection=all" +
-      "&resourcetype=all&searchtype=advanced&search=&offset=1&count=5&orderby=titlename");
+      "&resourcetype=all&searchtype=contains&search=&offset=1&count=5&orderby=titlename");
   }
 
   @Test
