@@ -1,3 +1,6 @@
+## 1.10.2 2020-11-04
+* MODKBEKBJ-515 GET Titles search | change searchtype from advanced to contains
+
 ## 1.10.1 2020-11-02
 * MODKBEKBJ-505 Log responses from HoldingsIQ/MODKBEKBJ
 
