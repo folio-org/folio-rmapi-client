@@ -10,6 +10,7 @@ import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TOKEN;
 import static org.folio.util.FutureUtils.mapVertxFuture;
 
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -86,8 +87,8 @@ public class ConfigurationServiceImpl implements ConfigurationService {
 
   private boolean isInvalidConfigurationException(Throwable exception) {
     Throwable cause = exception.getCause();
-    return cause instanceof ServiceResponseException
-      && isInvalidConfigurationStatusCode(((ServiceResponseException) cause).getCode());
+    return cause instanceof UnknownHostException || (cause instanceof ServiceResponseException
+      && isInvalidConfigurationStatusCode(((ServiceResponseException) cause).getCode()));
   }
 
   private boolean isInvalidConfigurationStatusCode(Integer statusCode) {
