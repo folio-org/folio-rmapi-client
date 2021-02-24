@@ -1,85 +1,78 @@
 package org.folio.holdingsiq.service.impl;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
-import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
-import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAndCreate;
-
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import io.vertx.core.Vertx;
+import io.vertx.core.json.Json;
 import org.apache.http.HttpStatus;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
-import org.folio.holdingsiq.model.Proxies;
 import org.folio.holdingsiq.model.RootProxyCustomLabels;
 import org.folio.holdingsiq.service.HoldingsIQService;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(HoldingsRequestHelper.class)
-@PowerMockIgnore({"org.apache.logging.log4j.*"})
 public class HoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
   private HoldingsIQService service;
 
-
   @Before
-  public void setUp() throws IOException {
-    setUpStep();
-
-    mockStatic(HoldingsRequestHelper.class);
-    HoldingsResponseBodyListener listener = mock(HoldingsResponseBodyListener.class);
-    // replace real logger with fake one to avoid calls to statusCode() method in the real logger
-    // those calls are mocked inside tests, moreover their number is strictly defined. so any excessive calls
-    // lead to test failures. this is a quick solution to the problem and should be revised later
-    when(HoldingsRequestHelper.successBodyLogger()).thenReturn(listener);
-
-    service = new HoldingsIQServiceImpl(CONFIGURATION, mockVertx);
+  public void setUp() {
+    service = new HoldingsIQServiceImpl(getConfiguration(), Vertx.vertx());
   }
 
   @After
   public void tearDown() {
-    tearDownStep();
+    wiremockServer.resetAll();
   }
 
   @Test
   public void testVerifyCredentials() {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    CompletableFuture<Object> completableFuture = service.verifyCredentials();
+    var urlPattern = new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/"), false);
+    wiremockServer.stubFor(
+      get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("{}"))
+    );
+    var completableFuture = service.verifyCredentials();
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/");
+    verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
   }
 
   @Test
   public void testRetrieveProxies() {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    CompletableFuture<Proxies> completableFuture = service.retrieveProxies();
+    var urlPattern = new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/proxies"), false);
+    wiremockServer.stubFor(
+      get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("[]"))
+    );
+    var completableFuture = service.retrieveProxies();
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/proxies");
+    verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
   }
 
   @Test
   public void testUpdateRootProxyCustomLabels() {
-    mockResponseForUpdateAndCreate(mockResponseBody, mockResponse, "{}", HttpStatus.SC_NO_CONTENT, HttpStatus.SC_OK);
-
-    CompletableFuture<RootProxyCustomLabels> completableFuture =
-      service.updateRootProxyCustomLabels(rootProxyCustomLabels);
+    var rootProxyCustomLabels = RootProxyCustomLabels.builder().vendorId(String.valueOf(VENDOR_ID)).build();
+    var urlPattern = new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/"), false);
+    wiremockServer.stubFor(
+      put(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_NO_CONTENT))
+    );
+    wiremockServer.stubFor(
+      get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody(Json.encode(rootProxyCustomLabels)))
+    );
+    var completableFuture = service.updateRootProxyCustomLabels(rootProxyCustomLabels);
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).putAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/");
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/");
+
+    verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
+    verify(new RequestPatternBuilder(RequestMethod.PUT, urlPattern));
   }
 }

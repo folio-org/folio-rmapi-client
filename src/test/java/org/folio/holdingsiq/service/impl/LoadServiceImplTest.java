@@ -1,31 +1,24 @@
 package org.folio.holdingsiq.service.impl;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
 
-import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
-
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-import com.fasterxml.jackson.core.JsonParser;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import org.apache.http.HttpStatus;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.folio.holdingsiq.model.DeltaReport;
-import org.folio.holdingsiq.model.DeltaReportStatus;
-import org.folio.holdingsiq.model.Holdings;
-import org.folio.holdingsiq.model.HoldingsLoadStatus;
-import org.folio.holdingsiq.model.HoldingsLoadTransactionStatus;
-import org.folio.holdingsiq.model.HoldingsTransactionIdsList;
 import org.folio.holdingsiq.model.TransactionId;
 import org.folio.holdingsiq.service.LoadService;
 
@@ -36,115 +29,143 @@ public class LoadServiceImplTest extends HoldingsIQServiceTestConfig {
 
   private static final String DELTA_ID = "7e3537a0-3f30-4ef8-9470-dd0a87ac1066";
 
-  private final LoadService loadService = new LoadServiceImpl(HoldingsIQServiceImplTest.CONFIGURATION, mockVertx);
+  private LoadService service;
 
   @Before
-  public void setUp() throws IOException {
-    setUpStep();
-  }
-
-  @After
-  public void tearDown() {
-    tearDownStep();
+  public void setUp() {
+    service = new LoadServiceImpl(getConfiguration(), Vertx.vertx());
   }
 
   @Test
   public void testPostHoldings() {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_ACCEPTED);
-    CompletableFuture<Void> completableFuture = loadService.populateHoldings();
+    var urlPattern = new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/holdings"), false);
+    wiremockServer.stubFor(
+      post(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_ACCEPTED).withBody("{}"))
+    );
+    var completableFuture = service.populateHoldings();
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).postAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/holdings");
+    WireMock.verify(new RequestPatternBuilder(RequestMethod.POST, urlPattern));
   }
 
   @Test
-  public void testPostHoldingsTransaction() throws ExecutionException, InterruptedException, IOException {
+  public void testPostHoldingsTransaction() throws ExecutionException, InterruptedException {
     TransactionId response = TransactionId.builder().transactionId(TRANSACTION_ID).build();
-    mockResponse(mockResponseBody, mockResponse, Json.encode(response), HttpStatus.SC_ACCEPTED);
-    doReturn(response).when(Json.mapper).readValue(any(JsonParser.class), eq(TransactionId.class));
-
-    CompletableFuture<TransactionId> completableFuture = loadService.populateHoldingsTransaction();
+    var urlPattern =
+      new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/reports/holdings?format=kbart2"), false);
+    wiremockServer.stubFor(
+      post(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_ACCEPTED).withBody(Json.encode(response)))
+    );
+    var completableFuture = service.populateHoldingsTransaction();
 
     assertTrue(isCompletedNormally(completableFuture));
     assertEquals(TRANSACTION_ID, completableFuture.get().getTransactionId());
-    verify(mockClient).postAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/reports/holdings?format=kbart2");
+    WireMock.verify(new RequestPatternBuilder(RequestMethod.POST, urlPattern));
   }
 
   @Test
   public void testGetStatusHoldings() {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    CompletableFuture<HoldingsLoadStatus> completableFuture = loadService.getLoadingStatus();
+    var urlPattern = new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/holdings/status"), false);
+    wiremockServer.stubFor(
+      get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("{}"))
+    );
+    var completableFuture = service.getLoadingStatus();
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/holdings/status");
+    WireMock.verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
   }
 
   @Test
   public void testGetTransactionStatus() {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    CompletableFuture<HoldingsLoadTransactionStatus> completableFuture = loadService.getTransactionStatus(TRANSACTION_ID);
+    var urlPattern = new UrlPattern(
+      equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/reports/holdings/transactions/" + TRANSACTION_ID + "/status"), false);
+    wiremockServer.stubFor(
+      get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("{}"))
+    );
+    var completableFuture = service.getTransactionStatus(TRANSACTION_ID);
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/reports/holdings/transactions/"+TRANSACTION_ID+"/status");
+    WireMock.verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
   }
 
   @Test
   public void testGetTransactions() {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    CompletableFuture<HoldingsTransactionIdsList> completableFuture = loadService.getTransactions();
+    var urlPattern = new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/reports/holdings/transactions"), false);
+    wiremockServer.stubFor(
+      get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("{}"))
+    );
+    var completableFuture = service.getTransactions();
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID +
-      "/reports/holdings/transactions");
+    WireMock.verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
   }
 
   @Test
   public void testGetHoldings() {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    CompletableFuture<Holdings> completableFuture = loadService.loadHoldings(COUNT_FOR_PARAM, PAGE_FOR_PARAM);
+    var urlPattern = new UrlPattern(equalTo(
+      "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/holdings?format=kbart2&count=" + COUNT_FOR_PARAM + "&offset="
+        + PAGE_FOR_PARAM), false);
+    wiremockServer.stubFor(
+      get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("{}"))
+    );
+    var completableFuture = service.loadHoldings(COUNT_FOR_PARAM, PAGE_FOR_PARAM);
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID +
-      "/holdings?format=kbart2&count=" + COUNT_FOR_PARAM + "&offset=" + PAGE_FOR_PARAM);
+    WireMock.verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
   }
 
   @Test
   public void testGetHoldingsTransaction() {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    CompletableFuture<Holdings> completableFuture = loadService.loadHoldingsTransaction(TRANSACTION_ID, COUNT_FOR_PARAM, PAGE_FOR_PARAM);
+    var urlPattern = new UrlPattern(equalTo(
+      "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/reports/holdings/transactions/" + TRANSACTION_ID + "?format=kbart2&count="
+        + COUNT_FOR_PARAM + "&offset=" + PAGE_FOR_PARAM), false);
+    wiremockServer.stubFor(
+      get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("{}"))
+    );
+    var completableFuture = service.loadHoldingsTransaction(TRANSACTION_ID, COUNT_FOR_PARAM, PAGE_FOR_PARAM);
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID +
-      "/reports/holdings/transactions/"+TRANSACTION_ID+"?format=kbart2&count=" + COUNT_FOR_PARAM + "&offset=" + PAGE_FOR_PARAM);
+    WireMock.verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
   }
 
   @Test
   public void testPostDeltaReport() throws ExecutionException, InterruptedException {
-    mockResponse(mockResponseBody, mockResponse, DELTA_ID, HttpStatus.SC_OK);
-    CompletableFuture<String> completableFuture = loadService.populateDeltaReport(TRANSACTION_ID, PREVIOUS_TRANSACTION_ID);
+    var urlPattern = new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/reports/holdings/deltas"), false);
+    wiremockServer.stubFor(
+      post(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody(DELTA_ID))
+    );
+    var completableFuture = service.populateDeltaReport(TRANSACTION_ID, PREVIOUS_TRANSACTION_ID);
 
     assertTrue(isCompletedNormally(completableFuture));
     assertEquals(DELTA_ID, completableFuture.get());
-    verify(mockClient).postAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID +
-      "/reports/holdings/deltas");
+    WireMock.verify(new RequestPatternBuilder(RequestMethod.POST, urlPattern));
   }
 
   @Test
   public void testGetDeltaReport() {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    CompletableFuture<DeltaReport> completableFuture = loadService.loadDeltaReport(DELTA_ID, COUNT_FOR_PARAM, PAGE_FOR_PARAM);
+    var urlPattern = new UrlPattern(equalTo(
+      "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/reports/holdings/deltas/" + DELTA_ID + "?format=kbart2&count="
+        + COUNT_FOR_PARAM + "&offset=" + PAGE_FOR_PARAM), false);
+    wiremockServer.stubFor(
+      get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("{}"))
+    );
+    var completableFuture = service.loadDeltaReport(DELTA_ID, COUNT_FOR_PARAM, PAGE_FOR_PARAM);
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID +
-      "/reports/holdings/deltas/"+DELTA_ID+"?format=kbart2&count=" + COUNT_FOR_PARAM + "&offset=" + PAGE_FOR_PARAM);
+    WireMock.verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
   }
 
   @Test
   public void testGetDeltaReportStatus() {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    CompletableFuture<DeltaReportStatus> completableFuture = loadService.getDeltaReportStatus(DELTA_ID);
+    var urlPattern =
+      new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/reports/holdings/deltas/" + DELTA_ID + "/status"),
+        false);
+    wiremockServer.stubFor(
+      get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("{}"))
+    );
+    var completableFuture = service.getDeltaReportStatus(DELTA_ID);
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/reports/holdings/deltas/"+DELTA_ID+"/status");
+    WireMock.verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
   }
 }

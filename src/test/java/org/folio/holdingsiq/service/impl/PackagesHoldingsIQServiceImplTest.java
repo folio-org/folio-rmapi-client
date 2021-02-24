@@ -1,108 +1,123 @@
 package org.folio.holdingsiq.service.impl;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.put;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
 
-import static org.folio.holdingsiq.service.util.TestUtil.mockResponse;
-import static org.folio.holdingsiq.service.util.TestUtil.mockResponseForUpdateAndCreate;
-
-import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-
-import com.fasterxml.jackson.core.JsonParser;
+import com.github.tomakehurst.wiremock.http.RequestMethod;
+import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
+import com.github.tomakehurst.wiremock.matching.UrlPattern;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import org.apache.http.HttpStatus;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.folio.holdingsiq.model.PackageByIdData;
 import org.folio.holdingsiq.model.PackagePut;
-import org.folio.holdingsiq.model.Packages;
 import org.folio.holdingsiq.model.Sort;
 import org.folio.holdingsiq.service.PackagesHoldingsIQService;
 
 public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
-  private final PackagesHoldingsIQService packagesHoldingsIQService =
-    new PackagesHoldingsIQServiceImpl(HoldingsIQServiceImplTest.CONFIGURATION, mockVertx);
+  private PackagesHoldingsIQService service;
 
   @Before
-  public void setUp() throws IOException {
-    setUpStep();
-  }
-
-  @After
-  public void tearDown() {
-    tearDownStep();
+  public void setUp() {
+    service = new PackagesHoldingsIQServiceImpl(getConfiguration(), Vertx.vertx());
   }
 
   @Test
   public void testRetrievePackages() {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    CompletableFuture<Packages> completableFuture = packagesHoldingsIQService.retrievePackages("orderedthroughebsco",
+    var urlPattern = new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/vendors/" + VENDOR_ID
+      + "/packages?selection=orderedthroughebsco&contenttype=filterType&search=" +
+      "Query&offset=1&count=5&orderby=packagename"), false);
+    wiremockServer.stubFor(
+      get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("{}"))
+    );
+    var completableFuture = service.retrievePackages("orderedthroughebsco",
       "filterType", VENDOR_ID, "Query", PAGE_FOR_PARAM, COUNT_FOR_PARAM, Sort.NAME);
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages?selection=orderedthroughebsco&contenttype=filterType&search=" +
-      "Query&offset=1&count=5&orderby=packagename");
+    verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
   }
 
   @Test
   public void testRetrievePackagesWithVendorId() {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    CompletableFuture<Packages> completableFuture = packagesHoldingsIQService.retrievePackages(VENDOR_ID);
+    var urlPattern = new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/vendors/" + VENDOR_ID
+      + "/packages?selection=all&contenttype=all&search=&offset=1"
+      + "&count=25&orderby=packagename"), false);
+    wiremockServer.stubFor(
+      get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("{}"))
+    );
+    var completableFuture = service.retrievePackages(VENDOR_ID);
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages?selection=all&contenttype=all&search=&offset=1"
-      + "&count=25&orderby=packagename");
+    verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
   }
 
   @Test
-  public void testRetrievePackage() throws IOException {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-    doReturn(packageCreated).when(Json.mapper).readValue(any(JsonParser.class), any(Class.class));
-    CompletableFuture<PackageByIdData> completableFuture = packagesHoldingsIQService.retrievePackage(packageId);
+  public void testRetrievePackage() {
+    var urlPattern =
+      new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID),
+        false);
+    wiremockServer.stubFor(
+      get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody(Json.encode(packageCreated)))
+    );
+    var completableFuture = service.retrievePackage(packageId);
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID);
+    verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
   }
 
   @Test
   public void testUpdatePackage() {
-    mockResponseForUpdateAndCreate(mockResponseBody, mockResponse, "{}", HttpStatus.SC_NO_CONTENT, HttpStatus.SC_OK);
-    packagesHoldingsIQService.updatePackage(packageId, PackagePut.builder().build());
+    var urlPattern =
+      new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID),
+        false);
+    wiremockServer.stubFor(
+      put(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_NO_CONTENT))
+    );
+    var completableFuture = service.updatePackage(packageId, PackagePut.builder().build());
 
-    verify(mockClient).putAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID);
+    assertTrue(isCompletedNormally(completableFuture));
+    verify(new RequestPatternBuilder(RequestMethod.PUT, urlPattern));
   }
 
   @Test
   public void testDeletePackage() {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_NO_CONTENT);
-    CompletableFuture<Void> completableFuture = packagesHoldingsIQService.deletePackage(packageId);
+    var urlPattern =
+      new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID),
+        false);
+    wiremockServer.stubFor(
+      put(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_NO_CONTENT))
+    );
+    var completableFuture = service.deletePackage(packageId);
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).putAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID);
+    verify(new RequestPatternBuilder(RequestMethod.PUT, urlPattern));
   }
 
   @Test
-  public void testPostPackage() throws IOException {
-    mockResponse(mockResponseBody, mockResponse, "{}", HttpStatus.SC_OK);
-
-    doReturn(packageCreated).when(Json.mapper).readValue(any(JsonParser.class), any(Class.class));
-    CompletableFuture<PackageByIdData> completableFuture = packagesHoldingsIQService.postPackage(packagePost, VENDOR_ID);
+  public void testPostPackage() {
+    var urlPatternGet =
+      new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID),
+        false);
+    var urlPatternPost =
+      new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/vendors/" + VENDOR_ID + "/packages"), false);
+    wiremockServer.stubFor(
+      post(urlPatternPost).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody(Json.encode(packageCreated)))
+    );
+    wiremockServer.stubFor(
+      get(urlPatternGet).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody(Json.encode(packageCreated)))
+    );
+    var completableFuture = service.postPackage(packagePost, VENDOR_ID);
 
     assertTrue(isCompletedNormally(completableFuture));
-    verify(mockClient).postAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages");
-    verify(mockClient).getAbs(STUB_BASE_URL + "/rm/rmaccounts/" + STUB_CUSTOMER_ID
-      + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID);
+    verify(new RequestPatternBuilder(RequestMethod.POST, urlPatternPost));
+    verify(new RequestPatternBuilder(RequestMethod.GET, urlPatternGet));
   }
 }

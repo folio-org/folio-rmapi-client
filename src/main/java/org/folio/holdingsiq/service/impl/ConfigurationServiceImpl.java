@@ -4,6 +4,7 @@ import static io.vertx.core.Future.failedFuture;
 import static io.vertx.core.Future.succeededFuture;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.apache.commons.validator.routines.UrlValidator.ALLOW_LOCAL_URLS;
 import static org.apache.http.HttpHeaders.ACCEPT;
 
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
@@ -22,13 +23,13 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
-import io.vertx.core.logging.Logger;
-import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
 import io.vertx.ext.web.client.predicate.ResponsePredicate;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.apache.http.HttpStatus;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.model.ConfigurationError;
@@ -43,7 +44,7 @@ import org.folio.rest.tools.utils.TenantTool;
  */
 public class ConfigurationServiceImpl implements ConfigurationService {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ConfigurationServiceImpl.class);
+  private static final Logger LOG = LogManager.getLogger(ConfigurationServiceImpl.class);
 
   private static final String JSON_API_TYPE = "application/vnd.api+json";
   private static final String USER_CREDS_URL = "/eholdings/user-kb-credential";
@@ -149,7 +150,7 @@ public class ConfigurationServiceImpl implements ConfigurationService {
       errors.add(new ConfigurationError("Customer ID is empty"));
     }
 
-    UrlValidator urlValidator = new UrlValidator();
+    UrlValidator urlValidator = new UrlValidator(ALLOW_LOCAL_URLS);
     if (!urlValidator.isValid(configuration.getUrl())) {
       errors.add(new ConfigurationError("Url is invalid"));
     }
