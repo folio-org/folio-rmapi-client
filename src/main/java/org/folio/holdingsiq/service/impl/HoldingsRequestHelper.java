@@ -3,6 +3,7 @@ package org.folio.holdingsiq.service.impl;
 import static java.lang.String.format;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -23,8 +24,10 @@ import io.vertx.ext.web.client.impl.HttpRequestImpl;
 import io.vertx.ext.web.client.impl.WebClientInternal;
 import io.vertx.ext.web.client.predicate.ErrorConverter;
 import io.vertx.ext.web.client.predicate.ResponsePredicate;
+import io.vertx.ext.web.client.predicate.ResponsePredicateResult;
 import io.vertx.ext.web.codec.BodyCodec;
 import lombok.extern.log4j.Log4j2;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.entity.ContentType;
 
 import org.folio.holdingsiq.model.Configuration;
@@ -110,7 +113,7 @@ public class HoldingsRequestHelper {
     var client = createClient();
 
     var responseFuture = addHeaders(client.postAbs(query))
-      .expect(ResponsePredicate.create(ResponsePredicate.status(200, 202), errorConverter(query)))
+      .expect(ResponsePredicate.create(expectedStatusesPredicate(200, 202), errorConverter(query)))
       .as(getResponseCodec(clazz))
       .sendJson(postData);
 
@@ -125,7 +128,7 @@ public class HoldingsRequestHelper {
     var client = createClient();
 
     var responseFuture = addHeaders(client.postAbs(query))
-      .expect(ResponsePredicate.create(ResponsePredicate.status(202, 409), errorConverter(query)))
+      .expect(ResponsePredicate.create(expectedStatusesPredicate(202, 409), errorConverter(query)))
       .as(getResponseCodec(clazz))
       .send();
 
@@ -240,5 +243,14 @@ public class HoldingsRequestHelper {
       .onComplete(event -> client.close())
       .onSuccess(event -> handler.complete(event.body()))
       .onFailure(handler::completeExceptionally);
+  }
+
+  private ResponsePredicate expectedStatusesPredicate(int... expectedStatuses) {
+    return response -> {
+      var sc = response.statusCode();
+      return ArrayUtils.contains(expectedStatuses, sc)
+        ? ResponsePredicateResult.success()
+        : ResponsePredicateResult.failure("Response status code " + sc + " is not in " + Arrays.toString(expectedStatuses));
+    };
   }
 }

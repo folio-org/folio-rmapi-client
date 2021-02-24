@@ -132,7 +132,7 @@ public class LoadServiceImplTest extends HoldingsIQServiceTestConfig {
   public void testPostDeltaReport() throws ExecutionException, InterruptedException {
     var urlPattern = new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/reports/holdings/deltas"), false);
     wiremockServer.stubFor(
-      post(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody(DELTA_ID))
+      post(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_ACCEPTED).withBody(DELTA_ID))
     );
     var completableFuture = service.populateDeltaReport(TRANSACTION_ID, PREVIOUS_TRANSACTION_ID);
 
