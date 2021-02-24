@@ -2,6 +2,8 @@ package org.folio.holdingsiq.service.impl;
 
 import java.util.concurrent.CompletableFuture;
 
+import io.vertx.core.Vertx;
+
 import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.model.DeltaReport;
 import org.folio.holdingsiq.model.DeltaReportParams;
@@ -13,30 +15,23 @@ import org.folio.holdingsiq.model.HoldingsTransactionIdsList;
 import org.folio.holdingsiq.model.TransactionId;
 import org.folio.holdingsiq.service.LoadService;
 
-import io.vertx.core.Vertx;
-import io.vertx.core.http.HttpClient;
-import io.vertx.core.http.HttpClientRequest;
-import io.vertx.core.json.Json;
-
 public class LoadServiceImpl implements LoadService {
 
   private HoldingsRequestHelper holdingsRequestHelper;
-  private Vertx vertx;
 
   public LoadServiceImpl(Configuration config, Vertx vertx) {
-    this.vertx = vertx;
-    holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
+    this.holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
   }
 
   @Override
   public CompletableFuture<Void> populateHoldings() {
-    return postRequestWithoutBody(holdingsRequestHelper.constructURL("holdings"))
+    return holdingsRequestHelper.postRequest(holdingsRequestHelper.constructURL("holdings"), String.class)
       .thenAccept(response -> {});
   }
 
   @Override
   public CompletableFuture<TransactionId> populateHoldingsTransaction() {
-    return postRequestWithoutBody(holdingsRequestHelper.constructURL("reports/holdings?format=kbart2"), TransactionId.class);
+    return holdingsRequestHelper.postRequest(holdingsRequestHelper.constructURL("reports/holdings?format=kbart2"), TransactionId.class);
   }
 
   @Override
@@ -78,42 +73,10 @@ public class LoadServiceImpl implements LoadService {
 
   @Override
   public CompletableFuture<String> populateDeltaReport(String currentSnapshotId, String previousSnapshotId) {
-    DeltaReportParams postData = DeltaReportParams
-      .builder()
-    .currentSnapshotId(currentSnapshotId)
-    .previousSnapshotId(previousSnapshotId).build();
+    DeltaReportParams postData = DeltaReportParams.builder()
+      .currentSnapshotId(currentSnapshotId)
+      .previousSnapshotId(previousSnapshotId).build();
     return holdingsRequestHelper.postRequest(holdingsRequestHelper.constructURL("reports/holdings/deltas"), postData,  String.class);
   }
 
-  private <T> CompletableFuture<T> postRequestWithoutBody(String query, Class<T> responseType) {
-    return postRequestWithoutBody(query)
-      .thenApply(response -> Json.decodeValue(response, responseType));
-  }
-  private CompletableFuture<String> postRequestWithoutBody(String query) {
-
-    CompletableFuture<String> future = new CompletableFuture<>();
-
-    HttpClient httpClient = vertx.createHttpClient();
-    final HttpClientRequest request = httpClient.postAbs(query);
-
-    holdingsRequestHelper.addRequestHeaders(request);
-
-    executeHoldingsRequest(query, future, httpClient, request);
-
-    String encodedBody = Json.encodePrettily("");
-    request.end(encodedBody);
-    return future;
-  }
-
-  private void executeHoldingsRequest(String query, CompletableFuture<String> future, HttpClient httpClient,
-                                      HttpClientRequest request) {
-    request.handler(response -> response.bodyHandler(body -> {
-      httpClient.close();
-      if (response.statusCode() == 202 || response.statusCode() == 409) {
-        future.complete(body.toString());
-      } else {
-        holdingsRequestHelper.handleRMAPIError(response, query, body, future);
-      }
-    })).exceptionHandler(future::completeExceptionally);
-  }
 }

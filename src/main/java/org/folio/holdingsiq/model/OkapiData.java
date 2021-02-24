@@ -1,23 +1,25 @@
 package org.folio.holdingsiq.model;
 
-import static java.util.Collections.unmodifiableMap;
-
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import lombok.Getter;
+
+@Getter
 public class OkapiData {
 
   private static final String OKAPI_TOKEN_HEADER = "x-okapi-token";
   private static final String OKAPI_URL_HEADER = "x-okapi-url";
   private static final String OKAPI_TENANT_HEADER = "x-okapi-tenant";
 
-  private Map<String, String> headers;
-  private String apiToken;
-  private String tenant;
-  private String okapiHost;
-  private int okapiPort;
+  private final Map<String, String> headers;
+  private final String apiToken;
+  private final String tenant;
+  private final String okapiHost;
+  private final int okapiPort;
+  private final String okapiUrl;
 
   public OkapiData(Map<String, String> headers) {
     this.headers = new HashMap<>(headers);
@@ -27,32 +29,13 @@ public class OkapiData {
     try {
       apiToken = lowercaseHeaders.get(OKAPI_TOKEN_HEADER);
       tenant = lowercaseHeaders.get(OKAPI_TENANT_HEADER);
-      URL url = new URL(lowercaseHeaders.get(OKAPI_URL_HEADER));
+      okapiUrl = lowercaseHeaders.get(OKAPI_URL_HEADER);
+      URL url = new URL(okapiUrl);
       okapiHost = url.getHost();
       okapiPort = url.getPort() != -1 ? url.getPort() : url.getDefaultPort();
     } catch (MalformedURLException e) {
       throw new IllegalArgumentException("Okapi url header does not contain valid url", e);
     }
-  }
-
-  public Map<String, String> getOkapiHeaders() {
-    return unmodifiableMap(headers);
-  }
-
-  public String getApiToken() {
-    return apiToken;
-  }
-
-  public String getTenant() {
-    return tenant;
-  }
-
-  public String getOkapiHost() {
-    return okapiHost;
-  }
-
-  public int getOkapiPort() {
-    return okapiPort;
   }
 
   private Map<String, String> getLowercaseHeaders(Map<String, String> headers) {

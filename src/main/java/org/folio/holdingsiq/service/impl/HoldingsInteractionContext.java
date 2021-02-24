@@ -1,39 +1,25 @@
 package org.folio.holdingsiq.service.impl;
 
 import io.vertx.core.MultiMap;
-import io.vertx.core.http.HttpClientRequest;
 import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpMethod;
+import io.vertx.ext.web.client.HttpRequest;
+import io.vertx.ext.web.client.impl.HttpRequestImpl;
 import lombok.Value;
 
 @Value
 public class HoldingsInteractionContext {
 
-  String requestUrl;
-  Class<?> expectedResultClass;
-
-  HttpClientRequest request;
+  HttpRequest<?> request;
   HttpClientResponse response;
 
 
   public HttpMethod httpMethod() {
-    return request.method();
-  }
-
-  public String absoluteURI() {
-    return request.absoluteURI();
+    return ((HttpRequestImpl<?>) request).method();
   }
 
   public String uri() {
-    return request.uri();
-  }
-
-  public String path() {
-    return request.path();
-  }
-
-  public String query() {
-    return request.query();
+    return ((HttpRequestImpl<?>) request).uri();
   }
 
   public MultiMap requestHeaders() {

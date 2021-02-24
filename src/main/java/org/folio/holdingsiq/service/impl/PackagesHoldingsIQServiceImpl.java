@@ -25,8 +25,7 @@ public class PackagesHoldingsIQServiceImpl implements PackagesHoldingsIQService 
   private final HoldingsRequestHelper holdingsRequestHelper;
 
   public PackagesHoldingsIQServiceImpl(Configuration config, Vertx vertx) {
-    holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
-    holdingsRequestHelper.addBodyListener(successBodyLogger());
+    holdingsRequestHelper = new HoldingsRequestHelper(config, vertx).addBodyListener(successBodyLogger());
   }
 
   @Override
