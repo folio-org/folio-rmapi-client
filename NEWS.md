@@ -1,5 +1,8 @@
+## 1.11.0 2021-03-04
+* FHIQC-7 Upgrade to Vert.X v4
+
 ## 1.10.3 2020-12-22
-MODKBEKBJ-550 Return ConfigurationError when url is invalid
+* MODKBEKBJ-550 Return ConfigurationError when url is invalid
 
 ## 1.10.2 2020-11-04
 * MODKBEKBJ-515 GET Titles search | change searchtype from advanced to contains
