@@ -224,7 +224,7 @@ class HoldingsRequestHelper {
 
   private static class WebClientHolder {
 
-    // in most cases there will be one key-value pair: one vert.x with one web client
+    // in most cases there will be only one key-value pair in the map: one vert.x with one web client associated
     private static final Map<Vertx, WebClient> webClients = new ConcurrentHashMap<>();
 
 
@@ -232,7 +232,9 @@ class HoldingsRequestHelper {
       return webClients.computeIfAbsent(vertx, vtx -> {
         var webClient = WebClient.create(vtx);
         ((WebClientInternal) webClient).addInterceptor(loggingInterceptor());
-        
+
+        log.info("Web client instance created to serve requests to HoldingsIQ: {}", webClient);
+
         return webClient;
       });
     }
