@@ -4,10 +4,10 @@ import static java.lang.String.format;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 
 import javax.ws.rs.core.HttpHeaders;
@@ -224,7 +224,8 @@ class HoldingsRequestHelper {
 
   private static class WebClientHolder {
 
-    private static final Map<Vertx, WebClient> webClients = new HashMap<>();
+    // in most cases there will be one key-value pair: one vert.x with one web client
+    private static final Map<Vertx, WebClient> webClients = new ConcurrentHashMap<>();
 
 
     static WebClient getClient(Vertx vertx) {
