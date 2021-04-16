@@ -77,7 +77,7 @@ class HoldingsRequestHelper {
         .expect(ResponsePredicate.create(ResponsePredicate.SC_OK, errorConverter(query)))
         .as(getResponseCodec(clazz));
 
-    return sendHttpRequest(client, request, HttpRequest::send);
+    return sendHttpRequest(request, HttpRequest::send);
   }
 
   <T> CompletableFuture<Void> putRequest(String query, T putData) {
@@ -87,7 +87,7 @@ class HoldingsRequestHelper {
       .expect(ResponsePredicate.create(ResponsePredicate.SC_NO_CONTENT, errorConverter(query)))
       .as(BodyCodec.none());
 
-    return sendHttpRequest(client, request, req -> req.sendJson(putData));
+    return sendHttpRequest(request, req -> req.sendJson(putData));
   }
 
   <T, P> CompletableFuture<T> postRequest(String query, P postData, Class<T> clazz) {
@@ -97,7 +97,7 @@ class HoldingsRequestHelper {
       .expect(ResponsePredicate.create(expectedStatusesPredicate(200, 202), errorConverter(query)))
       .as(getResponseCodec(clazz));
 
-    return sendHttpRequest(client, request, req -> req.sendJson(postData));
+    return sendHttpRequest(request, req -> req.sendJson(postData));
   }
 
   <T> CompletableFuture<T> postRequest(String query, Class<T> clazz) {
@@ -107,7 +107,7 @@ class HoldingsRequestHelper {
       .expect(ResponsePredicate.create(expectedStatusesPredicate(202, 409), errorConverter(query)))
       .as(getResponseCodec(clazz));
 
-    return sendHttpRequest(client, request, HttpRequest::send);
+    return sendHttpRequest(request, HttpRequest::send);
   }
 
   HoldingsRequestHelper addBodyListener(HoldingsResponseBodyListener listener) {
@@ -194,7 +194,7 @@ class HoldingsRequestHelper {
       .putHeader(RMAPI_API_KEY_HEADER, apiKey);
   }
 
-  private <T> CompletableFuture<T> sendHttpRequest(WebClient client, HttpRequest<T> request,
+  private <T> CompletableFuture<T> sendHttpRequest(HttpRequest<T> request,
       Function<HttpRequest<T>, Future<HttpResponse<T>>> sendMethod) {
 
     CompletableFuture<T> result = new CompletableFuture<>();
@@ -202,12 +202,11 @@ class HoldingsRequestHelper {
     Future<HttpResponse<T>> response = sendMethod.apply(request);
 
     response
-        .onComplete(ar -> client.close())
         .onSuccess(res -> {
           T body = res.body();
           fireBodyReceived(body, new HoldingsInteractionContext(request, res));
 
-          result.complete(body);
+          result.complete(res.body());
         })
         .onFailure(result::completeExceptionally);
 
@@ -232,7 +231,7 @@ class HoldingsRequestHelper {
       return webClients.computeIfAbsent(vertx, vtx -> {
         var webClient = WebClient.create(vtx);
         ((WebClientInternal) webClient).addInterceptor(loggingInterceptor());
-
+        
         return webClient;
       });
     }
