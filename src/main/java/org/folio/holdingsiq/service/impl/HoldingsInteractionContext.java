@@ -1,9 +1,9 @@
 package org.folio.holdingsiq.service.impl;
 
 import io.vertx.core.MultiMap;
-import io.vertx.core.http.HttpClientResponse;
 import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.client.HttpRequest;
+import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.impl.HttpRequestImpl;
 import lombok.Value;
 
@@ -11,7 +11,7 @@ import lombok.Value;
 public class HoldingsInteractionContext {
 
   HttpRequest<?> request;
-  HttpClientResponse response;
+  HttpResponse<?> response;
 
 
   public HttpMethod httpMethod() {

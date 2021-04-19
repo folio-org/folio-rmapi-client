@@ -5,7 +5,10 @@ import static java.lang.String.format;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 import javax.ws.rs.core.HttpHeaders;
 
@@ -18,6 +21,7 @@ import io.vertx.core.json.Json;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.ext.web.client.impl.ClientPhase;
 import io.vertx.ext.web.client.impl.HttpContext;
 import io.vertx.ext.web.client.impl.HttpRequestImpl;
@@ -37,7 +41,7 @@ import org.folio.holdingsiq.service.exception.ServiceResponseException;
 import org.folio.holdingsiq.service.exception.UnAuthorizedException;
 
 @Log4j2
-public class HoldingsRequestHelper {
+class HoldingsRequestHelper {
 
   static final String VENDORS_PATH = "vendors";
   static final String PACKAGES_PATH = "packages";
@@ -58,6 +62,7 @@ public class HoldingsRequestHelper {
   private final Vertx vertx;
   private final List<HoldingsResponseBodyListener> bodyListeners;
 
+
   HoldingsRequestHelper(Configuration config, Vertx vertx) {
     this.customerId = config.getCustomerId();
     this.apiKey = config.getApiKey();
@@ -66,89 +71,69 @@ public class HoldingsRequestHelper {
     this.bodyListeners = new ArrayList<>();
   }
 
-  public static HoldingsResponseBodyListener successBodyLogger() {
-    return (body, ctx) -> {
-      int sc = ctx.statusCode();
+  <T> CompletableFuture<T> getRequest(String query, Class<T> clazz) {
+    var client = WebClientHolder.getClient(vertx);
 
-      if (sc == 200 || sc == 201 || sc == 202 || sc == 204) {
-        log.info("[OK] RMAPI Service response: query = [{}], method = [{}], statusCode = [{}], body = [{}]",
-          ctx.uri(), ctx.httpMethod(), sc, body);
-      }
-    };
+    var request = addHeaders(client.getAbs(query))
+        .expect(ResponsePredicate.create(ResponsePredicate.SC_OK, errorConverter(query)))
+        .as(getResponseCodec(clazz));
+
+    return sendHttpRequest(request, HttpRequest::send);
   }
 
-  public <T> CompletableFuture<T> getRequest(String query, Class<T> clazz) {
-    CompletableFuture<T> future = new CompletableFuture<>();
+  <T> CompletableFuture<Void> putRequest(String query, T putData) {
+    var client = WebClientHolder.getClient(vertx);
 
-    var client = createClient();
-
-    var responseFuture = addHeaders(client.getAbs(query))
-      .expect(ResponsePredicate.create(ResponsePredicate.SC_OK, errorConverter(query)))
-      .as(getResponseCodec(clazz))
-      .send();
-
-    finishRequest(future, responseFuture, client);
-
-    return future;
-  }
-
-  public <T> CompletableFuture<Void> putRequest(String query, T putData) {
-    CompletableFuture<Void> future = new CompletableFuture<>();
-
-    var client = createClient();
-
-    var responseFuture = addHeaders(client.putAbs(query))
+    var request = addHeaders(client.putAbs(query))
       .expect(ResponsePredicate.create(ResponsePredicate.SC_NO_CONTENT, errorConverter(query)))
-      .as(BodyCodec.none())
-      .sendJson(putData);
+      .as(BodyCodec.none());
 
-    finishRequest(future, responseFuture, client);
-
-    return future;
+    return sendHttpRequest(request, req -> req.sendJson(putData));
   }
 
-  public <T, P> CompletableFuture<T> postRequest(String query, P postData, Class<T> clazz) {
-    CompletableFuture<T> future = new CompletableFuture<>();
+  <T, P> CompletableFuture<T> postRequest(String query, P postData, Class<T> clazz) {
+    var client = WebClientHolder.getClient(vertx);
 
-    var client = createClient();
-
-    var responseFuture = addHeaders(client.postAbs(query))
+    var request = addHeaders(client.postAbs(query))
       .expect(ResponsePredicate.create(expectedStatusesPredicate(200, 202), errorConverter(query)))
-      .as(getResponseCodec(clazz))
-      .sendJson(postData);
+      .as(getResponseCodec(clazz));
 
-    finishRequest(future, responseFuture, client);
-
-    return future;
+    return sendHttpRequest(request, req -> req.sendJson(postData));
   }
 
-  public <T> CompletableFuture<T> postRequest(String query, Class<T> clazz) {
-    CompletableFuture<T> future = new CompletableFuture<>();
+  <T> CompletableFuture<T> postRequest(String query, Class<T> clazz) {
+    var client = WebClientHolder.getClient(vertx);
 
-    var client = createClient();
-
-    var responseFuture = addHeaders(client.postAbs(query))
+    var request = addHeaders(client.postAbs(query))
       .expect(ResponsePredicate.create(expectedStatusesPredicate(202, 409), errorConverter(query)))
-      .as(getResponseCodec(clazz))
-      .send();
+      .as(getResponseCodec(clazz));
 
-    finishRequest(future, responseFuture, client);
-
-    return future;
+    return sendHttpRequest(request, HttpRequest::send);
   }
 
-  public HoldingsRequestHelper addBodyListener(HoldingsResponseBodyListener listener) {
+  HoldingsRequestHelper addBodyListener(HoldingsResponseBodyListener listener) {
     if (listener != null) {
       bodyListeners.add(listener);
     }
     return this;
   }
 
-  public String constructURL(String path) {
+  String constructURL(String path) {
     String fullPath = format("%s/rm/rmaccounts/%s/%s", baseURI, customerId, path);
 
     log.info("constructurl - path=" + fullPath);
     return fullPath;
+  }
+
+  static HoldingsResponseBodyListener successBodyLogger() {
+    return (body, ctx) -> {
+      int sc = ctx.statusCode();
+
+      if (sc == 200 || sc == 201 || sc == 202 || sc == 204) {
+        log.info("[OK] RMAPI Service response: query = [{}], method = [{}], statusCode = [{}], body = [{}]",
+            ctx.uri(), ctx.httpMethod(), sc, body);
+      }
+    };
   }
 
   private <T> BodyCodec<T> getResponseCodec(Class<T> clazz) {
@@ -197,38 +182,10 @@ public class HoldingsRequestHelper {
     return msgBody.replace(VENDOR_LOWER_STRING, PROVIDER_LOWER_STRING).replace(VENDOR_UPPER_STRING, PROVIDER_UPPER_STRING);
   }
 
-  private Handler<HttpContext<?>> loggingInterceptor() {
-    return httpContext -> {
-      if (ClientPhase.SEND_REQUEST == httpContext.phase()) {
-        HttpRequestImpl<?> request = (HttpRequestImpl<?>) httpContext.request();
-        HttpMethod method = request.method();
-        String uri = request.uri();
-        Object requestBody = httpContext.body();
-        if (requestBody != null) {
-          log.info("RMAPI Service {} absolute URL is: {} ", method, uri);
-          log.info("RMAPI Service {} body is: {}", method, requestBody);
-        } else {
-          log.info("RMAPI Service {} absolute URL is: {}", method, uri);
-        }
-      } else if (ClientPhase.RECEIVE_RESPONSE == httpContext.phase()) {
-        httpContext.clientResponse()
-          .bodyHandler(body -> fireBodyReceived(body,
-            new HoldingsInteractionContext(httpContext.request(), httpContext.clientResponse())));
-      }
-      httpContext.next();
-    };
-  }
-
-  private void fireBodyReceived(Object body, HoldingsInteractionContext context) {
+  private <T> void fireBodyReceived(T body, HoldingsInteractionContext context) {
     for (HoldingsResponseBodyListener listener : bodyListeners) {
       listener.bodyReceived(body, context);
     }
-  }
-
-  private WebClient createClient() {
-    var client = WebClient.create(vertx);
-    ((WebClientInternal) client).addInterceptor(loggingInterceptor());
-    return client;
   }
 
   private HttpRequest<Buffer> addHeaders(HttpRequest<Buffer> request) {
@@ -238,11 +195,23 @@ public class HoldingsRequestHelper {
       .putHeader(RMAPI_API_KEY_HEADER, apiKey);
   }
 
-  private <T> void finishRequest(CompletableFuture<T> handler, Future<HttpResponse<T>> response, WebClient client) {
+  private <T> CompletableFuture<T> sendHttpRequest(HttpRequest<T> request,
+      Function<HttpRequest<T>, Future<HttpResponse<T>>> sendMethod) {
+
+    CompletableFuture<T> result = new CompletableFuture<>();
+
+    Future<HttpResponse<T>> response = sendMethod.apply(request);
+
     response
-      .onComplete(event -> client.close())
-      .onSuccess(event -> handler.complete(event.body()))
-      .onFailure(handler::completeExceptionally);
+        .onSuccess(res -> {
+          T body = res.body();
+          fireBodyReceived(body, new HoldingsInteractionContext(request, res));
+
+          result.complete(res.body());
+        })
+        .onFailure(result::completeExceptionally);
+
+    return result;
   }
 
   private ResponsePredicate expectedStatusesPredicate(int... expectedStatuses) {
@@ -253,4 +222,62 @@ public class HoldingsRequestHelper {
         : ResponsePredicateResult.failure("Response status code " + sc + " is not in " + Arrays.toString(expectedStatuses));
     };
   }
+
+  private static class WebClientHolder {
+
+    // in most cases there will be only one key-value pair in the map: one vert.x with one web client associated
+    private static final Map<Vertx, WebClientHolder> webClients = new ConcurrentHashMap<>();
+
+    private final WebClient webClient;
+
+
+    WebClientHolder(WebClient wc) {
+      this.webClient = wc;
+      ((WebClientInternal) webClient).addInterceptor(loggingInterceptor());
+    }
+
+    static WebClient getClient(Vertx vertx) {
+      return webClients.computeIfAbsent(vertx, vtx -> {
+        WebClient webClient = createWebClient(vtx);
+
+        return new WebClientHolder(webClient);
+      }).getWebClient();
+    }
+
+    private static WebClient createWebClient(Vertx vtx) {
+      WebClientOptions options = new WebClientOptions();
+      options.setMaxPoolSize(20); // override the default of 5 HTTP/1 connections
+      options.setHttp2MaxPoolSize(3); // override the default of 1 HTTP/2 connections
+
+      var webClient = WebClient.create(vtx, options);
+      log.info("Web client instance created to serve requests to HoldingsIQ: {}", webClient);
+
+      return webClient;
+    }
+
+    WebClient getWebClient() {
+      return webClient;
+    }
+
+    private Handler<HttpContext<?>> loggingInterceptor() {
+      return httpContext -> {
+        if (ClientPhase.SEND_REQUEST == httpContext.phase()) {
+          HttpRequestImpl<?> request = (HttpRequestImpl<?>) httpContext.request();
+
+          HttpMethod method = request.method();
+          String uri = request.uri();
+
+          log.info("RMAPI Service {} absolute URL is: {}", method, uri);
+
+          Object requestBody = httpContext.body();
+          if (requestBody != null) {
+            log.info("RMAPI Service {} body is: {}", method, requestBody);
+          }
+        }
+
+        httpContext.next();
+      };
+    }
+  }
+
 }
