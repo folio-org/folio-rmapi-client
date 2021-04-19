@@ -21,6 +21,7 @@ import io.vertx.core.json.Json;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.WebClient;
+import io.vertx.ext.web.client.WebClientOptions;
 import io.vertx.ext.web.client.impl.ClientPhase;
 import io.vertx.ext.web.client.impl.HttpContext;
 import io.vertx.ext.web.client.impl.HttpRequestImpl;
@@ -225,21 +226,40 @@ class HoldingsRequestHelper {
   private static class WebClientHolder {
 
     // in most cases there will be only one key-value pair in the map: one vert.x with one web client associated
-    private static final Map<Vertx, WebClient> webClients = new ConcurrentHashMap<>();
+    private static final Map<Vertx, WebClientHolder> webClients = new ConcurrentHashMap<>();
 
+    private final WebClient webClient;
+
+
+    WebClientHolder(WebClient wc) {
+      this.webClient = wc;
+      ((WebClientInternal) webClient).addInterceptor(loggingInterceptor());
+    }
 
     static WebClient getClient(Vertx vertx) {
       return webClients.computeIfAbsent(vertx, vtx -> {
-        var webClient = WebClient.create(vtx);
-        ((WebClientInternal) webClient).addInterceptor(loggingInterceptor());
+        WebClient webClient = createWebClient(vtx);
 
-        log.info("Web client instance created to serve requests to HoldingsIQ: {}", webClient);
-
-        return webClient;
-      });
+        return new WebClientHolder(webClient);
+      }).getWebClient();
     }
 
-    private static Handler<HttpContext<?>> loggingInterceptor() {
+    private static WebClient createWebClient(Vertx vtx) {
+      WebClientOptions options = new WebClientOptions();
+      options.setMaxPoolSize(20); // override the default of 5 HTTP/1 connections
+      options.setHttp2MaxPoolSize(3); // override the default of 1 HTTP/2 connections
+
+      var webClient = WebClient.create(vtx, options);
+      log.info("Web client instance created to serve requests to HoldingsIQ: {}", webClient);
+
+      return webClient;
+    }
+
+    WebClient getWebClient() {
+      return webClient;
+    }
+
+    private Handler<HttpContext<?>> loggingInterceptor() {
       return httpContext -> {
         if (ClientPhase.SEND_REQUEST == httpContext.phase()) {
           HttpRequestImpl<?> request = (HttpRequestImpl<?>) httpContext.request();
