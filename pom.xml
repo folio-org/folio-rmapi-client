@@ -19,8 +19,8 @@
   </licenses>
 
   <properties>
-    <folio-service-tools.version>1.6.1</folio-service-tools.version>
-    <vertx.version>4.0.2</vertx.version>
+    <folio-service-tools.version>1.6.2-SNAPSHOT</folio-service-tools.version>
+    <vertx.version>4.1.0.CR1</vertx.version>
     <lombok.version>1.18.18</lombok.version>
     <jackson.version>2.12.1</jackson.version>
     <commons-validator.version>1.7</commons-validator.version>
