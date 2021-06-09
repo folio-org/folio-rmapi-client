@@ -1,3 +1,7 @@
+## 1.12.0 2021-06-09
+* FHIQC-10 Load Holdings: Refactor using of Vert.X WebClient
+* FHIQC-11 Upgrade to Vert.X v4.1.0.CR1
+
 ## 1.11.0 2021-03-04
 * FHIQC-7 Upgrade to Vert.X v4
 
