@@ -1,27 +1,37 @@
 package org.folio.holdingsiq.service.impl.urlbuilder;
 
+import static org.apache.commons.lang3.StringUtils.defaultString;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.apache.commons.lang3.StringUtils;
 
 import org.folio.holdingsiq.model.FilterQuery;
 import org.folio.holdingsiq.model.Sort;
 
-
 public class TitlesFilterableUrlBuilder {
+
   private static final String SEARCHFIELD_TITLENAME = "titlename";
   private static final String SEARCHFIELD_ISXN = "isxn";
   private static final String SEARCHFIELD_PUBLISHER = "publisher";
   private static final String SEARCHFIELD_SUBJECT = "subject";
 
+  private static final String DEFAULT_SELECTION = "all";
+  private static final String DEFAULT_RESOURCE_TYPE = "all";
+  private static final String DEFAULT_SEARCH_TYPE = "advanced";
+
   private FilterQuery filterQuery;
   private int page = 1;
   private int count = 25;
   private Sort sort;
+  private String searchType;
 
   public TitlesFilterableUrlBuilder filter(FilterQuery filterQuery) {
     this.filterQuery = filterQuery;
+    return this;
+  }
+
+  public TitlesFilterableUrlBuilder searchType(String searchType) {
+    this.searchType = searchType;
     return this;
   }
 
@@ -40,7 +50,7 @@ public class TitlesFilterableUrlBuilder {
     return this;
   }
 
-  public String build(){
+  public String build() {
     String search = null;
     String searchField;
     if (filterQuery.getName() != null) {
@@ -59,17 +69,6 @@ public class TitlesFilterableUrlBuilder {
       searchField = SEARCHFIELD_TITLENAME;
     }
 
-    String selection = StringUtils.defaultString(filterQuery.getSelected(), "all");
-
-    String resourceType = StringUtils.defaultString(filterQuery.getType(), "all");
-
-    List<String> parameters = new ArrayList<>();
-
-    parameters.add("searchfield="+searchField);
-    parameters.add("selection=" + selection);
-    parameters.add("resourcetype=" + resourceType);
-    parameters.add("searchtype=contains");
-
     String query = new QueryableUrlBuilder()
       .q(search)
       .page(page)
@@ -78,7 +77,13 @@ public class TitlesFilterableUrlBuilder {
       .nameParameter(SEARCHFIELD_TITLENAME)
       .build();
 
+    List<String> parameters = new ArrayList<>();
+    parameters.add("searchfield=" + searchField);
+    parameters.add("selection=" + defaultString(filterQuery.getSelected(), DEFAULT_SELECTION));
+    parameters.add("resourcetype=" + defaultString(filterQuery.getType(), DEFAULT_RESOURCE_TYPE));
+    parameters.add("searchtype=" + defaultString(searchType, DEFAULT_SEARCH_TYPE));
     parameters.add(query);
+
     return String.join("&", parameters);
   }
 

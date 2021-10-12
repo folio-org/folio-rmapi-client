@@ -32,11 +32,11 @@ public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig
   public void testRetrieveTitles() {
     var urlPattern = new UrlPattern(equalTo(
       "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/titles?searchfield=titlename&selection=all&resourcetype=all&searchtype=" +
-        "contains&search=&offset=1&count=5&orderby=titlename"), false);
+        "advanced&search=&offset=1&count=5&orderby=titlename"), false);
     wiremockServer.stubFor(
       get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody(Json.encode(titles)))
     );
-    var completableFuture = service.retrieveTitles(filterQuery, Sort.NAME, PAGE_FOR_PARAM, COUNT_FOR_PARAM);
+    var completableFuture = service.retrieveTitles(filterQuery, null, Sort.NAME, PAGE_FOR_PARAM, COUNT_FOR_PARAM);
 
     assertTrue(isCompletedNormally(completableFuture));
     verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
@@ -47,12 +47,12 @@ public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig
     var urlPattern = new UrlPattern(equalTo(
       "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/vendors/" + VENDOR_ID + "/packages/" + PACKAGE_ID
         + "/titles?searchfield=titlename&selection=all" +
-        "&resourcetype=all&searchtype=contains&search=&offset=1&count=5&orderby=titlename"), false);
+        "&resourcetype=all&searchtype=advanced&search=&offset=1&count=5&orderby=titlename"), false);
     wiremockServer.stubFor(
       get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody(Json.encode(titles)))
     );
     var completableFuture =
-      service.retrieveTitles(VENDOR_ID, PACKAGE_ID, filterQuery, Sort.NAME, PAGE_FOR_PARAM, COUNT_FOR_PARAM);
+      service.retrieveTitles(VENDOR_ID, PACKAGE_ID, filterQuery, null, Sort.NAME, PAGE_FOR_PARAM, COUNT_FOR_PARAM);
 
     assertTrue(isCompletedNormally(completableFuture));
     verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));

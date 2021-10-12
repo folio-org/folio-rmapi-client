@@ -30,28 +30,31 @@ public class PackagesHoldingsIQServiceImpl implements PackagesHoldingsIQService 
 
   @Override
   public CompletableFuture<PackageByIdData> retrievePackage(PackageId packageId) {
-    final String path = VENDORS_PATH + '/' + packageId.getProviderIdPart() + '/' + PACKAGES_PATH + '/' + packageId.getPackageIdPart();
+    final String path = VENDORS_PATH + '/' + packageId.getProviderIdPart()
+      + '/' + PACKAGES_PATH + '/' + packageId.getPackageIdPart();
     return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(path), PackageByIdData.class);
   }
 
   @Override
   public CompletableFuture<Packages> retrievePackages(Long providerId) {
-    return retrievePackages(null, null, providerId, null, 1, 25, Sort.NAME);
+    return retrievePackages(null, null, null, providerId, null, 1, 25, Sort.NAME);
   }
 
   @Override
-  public CompletableFuture<Packages> retrievePackages(String filterSelected, String filterType, Long providerId,
-                                                      String q, int page, int count, Sort sort) {
+  public CompletableFuture<Packages> retrievePackages(String filterSelected, String filterType, String searchType,
+                                                      Long providerId, String q, int page, int count, Sort sort) {
     String path = new PackagesFilterableUrlBuilder()
       .filterSelected(filterSelected)
       .filterType(filterType)
+      .searchType(searchType)
       .q(q)
       .page(page)
       .count(count)
       .sort(sort)
       .build();
 
-    String packagesPath = providerId == null ? PACKAGES_PATH + "?" : VENDORS_PATH + '/' + providerId + '/' + PACKAGES_PATH + "?";
+    String packagesPath =
+      providerId == null ? PACKAGES_PATH + "?" : VENDORS_PATH + '/' + providerId + '/' + PACKAGES_PATH + "?";
 
     return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(packagesPath + path), Packages.class);
   }
@@ -69,13 +72,15 @@ public class PackagesHoldingsIQServiceImpl implements PackagesHoldingsIQService 
 
   @Override
   public CompletableFuture<Void> updatePackage(PackageId packageId, PackagePut packagePut) {
-    final String path = VENDORS_PATH + '/' + packageId.getProviderIdPart() + '/' + PACKAGES_PATH + '/' + packageId.getPackageIdPart();
+    final String path =
+      VENDORS_PATH + '/' + packageId.getProviderIdPart() + '/' + PACKAGES_PATH + '/' + packageId.getPackageIdPart();
     return holdingsRequestHelper.putRequest(holdingsRequestHelper.constructURL(path), packagePut);
   }
 
   @Override
   public CompletableFuture<Void> deletePackage(PackageId packageId) {
-    final String path = VENDORS_PATH + '/' + packageId.getProviderIdPart() + '/' + PACKAGES_PATH + '/' + packageId.getPackageIdPart();
+    final String path =
+      VENDORS_PATH + '/' + packageId.getProviderIdPart() + '/' + PACKAGES_PATH + '/' + packageId.getPackageIdPart();
     return holdingsRequestHelper.putRequest(holdingsRequestHelper.constructURL(path), new PackageSelectedPayload(false));
   }
 }
