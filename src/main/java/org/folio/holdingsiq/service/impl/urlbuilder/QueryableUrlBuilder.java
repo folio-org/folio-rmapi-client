@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.folio.holdingsiq.model.Sort;
 
 public class QueryableUrlBuilder {
+
   private static final String RELEVANCE_PARAMETER = "relevance";
   private String q;
   private int page = 1;
@@ -42,14 +43,12 @@ public class QueryableUrlBuilder {
     return this;
   }
 
-  public String build(){
+  public String build() {
     List<String> parameters = new ArrayList<>();
     if (StringUtils.isNoneBlank(q)) {
-      String encodedQuery;
-      encodedQuery = URLEncoder.encode(q, StandardCharsets.UTF_8);
+      String encodedQuery = URLEncoder.encode(q, StandardCharsets.UTF_8);
       parameters.add("search=" + encodedQuery);
-    }
-    else {
+    } else {
       parameters.add("search=");
     }
 
@@ -61,9 +60,9 @@ public class QueryableUrlBuilder {
   }
 
   private String determineSortValue(Sort sort, String query) {
-    if(query == null)
+    if (query == null)
       return nameParameter;
-    switch (sort){
+    switch (sort) {
       case RELEVANCE:
         return RELEVANCE_PARAMETER;
       case NAME:

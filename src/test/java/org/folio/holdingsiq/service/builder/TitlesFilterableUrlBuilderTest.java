@@ -1,12 +1,13 @@
 package org.folio.holdingsiq.service.builder;
 
-import org.folio.holdingsiq.model.FilterQuery;
-import org.folio.holdingsiq.model.Sort;
-import org.folio.holdingsiq.service.impl.urlbuilder.TitlesFilterableUrlBuilder;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import org.folio.holdingsiq.model.FilterQuery;
+import org.folio.holdingsiq.model.Sort;
+import org.folio.holdingsiq.service.impl.urlbuilder.TitlesFilterableUrlBuilder;
 
 public class TitlesFilterableUrlBuilderTest {
 
@@ -24,7 +25,7 @@ public class TitlesFilterableUrlBuilderTest {
       .count(5)
       .sort(Sort.RELEVANCE)
       .build();
-    assertEquals("searchfield=titlename&selection=all&resourcetype=all&searchtype=contains&search=ebsco" +
+    assertEquals("searchfield=titlename&selection=all&resourcetype=all&searchtype=advanced&search=ebsco" +
       "&offset=1&count=5&orderby=relevance", url);
   }
 
@@ -34,7 +35,7 @@ public class TitlesFilterableUrlBuilderTest {
       .filter(fqb.name("ebsco").build())
       .sort(Sort.NAME)
       .build();
-    assertEquals("searchfield=titlename&selection=all&resourcetype=all&searchtype=contains&search=ebsco" +
+    assertEquals("searchfield=titlename&selection=all&resourcetype=all&searchtype=advanced&search=ebsco" +
       "&offset=1&count=25&orderby=titlename", url);
   }
 
@@ -45,7 +46,7 @@ public class TitlesFilterableUrlBuilderTest {
       .page(2)
       .sort(Sort.RELEVANCE)
       .build();
-    assertEquals("searchfield=titlename&selection=all&resourcetype=all&searchtype=contains&search=ebsco" +
+    assertEquals("searchfield=titlename&selection=all&resourcetype=all&searchtype=advanced&search=ebsco" +
       "&offset=2&count=25&orderby=relevance", url);
   }
 
@@ -55,7 +56,7 @@ public class TitlesFilterableUrlBuilderTest {
       .filter(fqb.name("news").type("book").selected("selected").build())
       .sort(Sort.RELEVANCE)
       .build();
-    assertEquals("searchfield=titlename&selection=selected&resourcetype=book&searchtype=contains&search=news" +
+    assertEquals("searchfield=titlename&selection=selected&resourcetype=book&searchtype=advanced&search=news" +
       "&offset=1&count=25&orderby=relevance", url);
   }
 
@@ -65,7 +66,7 @@ public class TitlesFilterableUrlBuilderTest {
       .filter(fqb.isxn("1362-3613").build())
       .sort(Sort.RELEVANCE)
       .build();
-    assertEquals("searchfield=isxn&selection=all&resourcetype=all&searchtype=contains&search=1362-3613" +
+    assertEquals("searchfield=isxn&selection=all&resourcetype=all&searchtype=advanced&search=1362-3613" +
       "&offset=1&count=25&orderby=relevance", url);
   }
 
@@ -75,7 +76,7 @@ public class TitlesFilterableUrlBuilderTest {
       .filter(fqb.subject("history").build())
       .sort(Sort.RELEVANCE)
       .build();
-    assertEquals("searchfield=subject&selection=all&resourcetype=all&searchtype=contains&search=history" +
+    assertEquals("searchfield=subject&selection=all&resourcetype=all&searchtype=advanced&search=history" +
       "&offset=1&count=25&orderby=relevance", url);
   }
 
@@ -85,7 +86,7 @@ public class TitlesFilterableUrlBuilderTest {
       .filter(fqb.publisher("publisherName").build())
       .sort(Sort.RELEVANCE)
       .build();
-    assertEquals("searchfield=publisher&selection=all&resourcetype=all&searchtype=contains&search=publisherName" +
+    assertEquals("searchfield=publisher&selection=all&resourcetype=all&searchtype=advanced&search=publisherName" +
       "&offset=1&count=25&orderby=relevance", url);
   }
 
@@ -95,7 +96,7 @@ public class TitlesFilterableUrlBuilderTest {
       .filter(fqb.type("book").build())
       .sort(Sort.RELEVANCE)
       .build();
-    assertEquals("searchfield=titlename&selection=all&resourcetype=book&searchtype=contains&search=" +
+    assertEquals("searchfield=titlename&selection=all&resourcetype=book&searchtype=advanced&search=" +
       "&offset=1&count=25&orderby=titlename", url);
   }
 
@@ -105,7 +106,7 @@ public class TitlesFilterableUrlBuilderTest {
       .filter(fqb.build())
       .sort(Sort.RELEVANCE)
       .build();
-    assertEquals("searchfield=titlename&selection=all&resourcetype=all&searchtype=contains&search=" +
+    assertEquals("searchfield=titlename&selection=all&resourcetype=all&searchtype=advanced&search=" +
       "&offset=1&count=25&orderby=titlename", url);
   }
 }

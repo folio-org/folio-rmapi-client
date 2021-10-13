@@ -12,10 +12,15 @@ import org.folio.holdingsiq.model.Sort;
 public interface PackagesHoldingsIQService {
 
   CompletableFuture<PackageByIdData> retrievePackage(PackageId packageId);
+
   CompletableFuture<Packages> retrievePackages(Long providerId);
-  CompletableFuture<Packages> retrievePackages(
-    String filterSelected, String filterType, Long providerId, String q, int page, int count, Sort sort);
+
+  CompletableFuture<Packages> retrievePackages(String filterSelected, String filterType, String searchType, Long providerId,
+                                               String q, int page, int count, Sort sort);
+
   CompletableFuture<PackageByIdData> postPackage(PackagePost entity, Long vendorId);
+
   CompletableFuture<Void> updatePackage(PackageId packageId, PackagePut packagePut);
+
   CompletableFuture<Void> deletePackage(PackageId packageId);
 }

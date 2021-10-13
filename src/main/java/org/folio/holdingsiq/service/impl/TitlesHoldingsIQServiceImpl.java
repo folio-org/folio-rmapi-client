@@ -42,27 +42,51 @@ public class TitlesHoldingsIQServiceImpl implements TitlesHoldingsIQService {
 
   @Override
   public CompletableFuture<Titles> retrieveTitles(String rmapiQuery) {
-    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(String.format("titles?%s", rmapiQuery)), Titles.class)
+    var path = String.format("titles?%s", rmapiQuery);
+    return getTitles(path)
       .thenCompose(titles -> completedFuture(postProcessTitles(titles)));
   }
 
   @Override
-  public CompletableFuture<Titles> retrieveTitles(FilterQuery filterQuery, Sort sort, int page, int count) {
-    String path = new TitlesFilterableUrlBuilder().filter(filterQuery).sort(sort).page(page).count(count).build();
+  public CompletableFuture<Titles> retrieveTitles(FilterQuery filterQuery, String searchType, Sort sort, int page,
+                                                  int count) {
+    String query = new TitlesFilterableUrlBuilder()
+      .filter(filterQuery)
+      .searchType(searchType)
+      .sort(sort)
+      .page(page)
+      .count(count)
+      .build();
 
-    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(TITLES_PATH + "?" + path), Titles.class)
+    return getTitles(TITLES_PATH + "?" + query)
       .thenCompose(titles -> completedFuture(postProcessTitles(titles)));
   }
 
   @Override
-  public CompletableFuture<Titles> retrieveTitles(Long providerId, Long packageId, FilterQuery filterQuery, Sort sort,
-      int page, int count) {
-    String path = new TitlesFilterableUrlBuilder().filter(filterQuery).sort(sort).page(page).count(count).build();
+  public CompletableFuture<Titles> retrieveTitles(Long providerId, Long packageId, FilterQuery filterQuery,
+                                                  String searchType, Sort sort,
+                                                  int page, int count) {
+    String query = new TitlesFilterableUrlBuilder()
+      .filter(filterQuery)
+      .searchType(searchType)
+      .sort(sort)
+      .page(page)
+      .count(count)
+      .build();
 
-    String titlesPath = VENDORS_PATH + '/' + providerId + '/' + PACKAGES_PATH + '/' + packageId + '/' + TITLES_PATH + "?";
+    String titlesPath = VENDORS_PATH + '/' + providerId + '/' + PACKAGES_PATH + '/' + packageId + '/' + TITLES_PATH;
 
-    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(titlesPath + path), Titles.class)
+    return getTitles(titlesPath + "?" + query)
       .thenCompose(titles -> completedFuture(postProcessTitles(titles)));
+  }
+
+  @Override
+  public CompletableFuture<Title> postTitle(TitlePost titlePost, PackageId packageId) {
+    return this.createTitle(titlePost, packageId).thenCompose(titleCreated -> retrieveTitle(titleCreated.getTitleId()));
+  }
+
+  private CompletableFuture<Titles> getTitles(String path) {
+    return holdingsRequestHelper.getRequest(holdingsRequestHelper.constructURL(path), Titles.class);
   }
 
   private Titles postProcessTitles(Titles titles) {
@@ -89,14 +113,9 @@ public class TitlesHoldingsIQServiceImpl implements TitlesHoldingsIQService {
       .orElse(0);
   }
 
-  @Override
-  public CompletableFuture<Title> postTitle(TitlePost titlePost, PackageId packageId) {
-    return this.createTitle(titlePost, packageId).thenCompose(titleCreated -> retrieveTitle(titleCreated.getTitleId()));
-  }
-
   private CompletableFuture<TitleCreated> createTitle(TitlePost entity, PackageId packageId) {
     final String path = VENDORS_PATH + '/' + packageId.getProviderIdPart() + '/' + PACKAGES_PATH + '/' + packageId
-        .getPackageIdPart() + '/' + TITLES_PATH;
+      .getPackageIdPart() + '/' + TITLES_PATH;
     return holdingsRequestHelper.postRequest(holdingsRequestHelper.constructURL(path), entity, TitleCreated.class);
   }
 }

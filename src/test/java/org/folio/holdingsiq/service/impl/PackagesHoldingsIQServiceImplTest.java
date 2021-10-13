@@ -33,13 +33,13 @@ public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConf
   @Test
   public void testRetrievePackages() {
     var urlPattern = new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/vendors/" + VENDOR_ID
-      + "/packages?selection=orderedthroughebsco&contenttype=filterType&search=" +
+      + "/packages?selection=orderedthroughebsco&contenttype=filterType&searchtype=advanced&search=" +
       "Query&offset=1&count=5&orderby=packagename"), false);
     wiremockServer.stubFor(
       get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("{}"))
     );
     var completableFuture = service.retrievePackages("orderedthroughebsco",
-      "filterType", VENDOR_ID, "Query", PAGE_FOR_PARAM, COUNT_FOR_PARAM, Sort.NAME);
+      "filterType", null, VENDOR_ID, "Query", PAGE_FOR_PARAM, COUNT_FOR_PARAM, Sort.NAME);
 
     assertTrue(isCompletedNormally(completableFuture));
     verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));
@@ -48,7 +48,7 @@ public class PackagesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConf
   @Test
   public void testRetrievePackagesWithVendorId() {
     var urlPattern = new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/vendors/" + VENDOR_ID
-      + "/packages?selection=all&contenttype=all&search=&offset=1"
+      + "/packages?selection=all&contenttype=all&searchtype=advanced&search=&offset=1"
       + "&count=25&orderby=packagename"), false);
     wiremockServer.stubFor(
       get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("{}"))

@@ -1,10 +1,11 @@
 package org.folio.holdingsiq.service.builder;
 
-import org.folio.holdingsiq.model.Sort;
-import org.folio.holdingsiq.service.impl.urlbuilder.PackagesFilterableUrlBuilder;
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import org.folio.holdingsiq.model.Sort;
+import org.folio.holdingsiq.service.impl.urlbuilder.PackagesFilterableUrlBuilder;
 
 public class PackagesFilterableUrlBuilderTest {
 
@@ -14,7 +15,7 @@ public class PackagesFilterableUrlBuilderTest {
       .filterSelected("selected")
       .sort(Sort.NAME)
       .build();
-    assertEquals("selection=selected&contenttype=all&search=&offset=1&count=25&orderby=packagename", url);
+    assertEquals("selection=selected&contenttype=all&searchtype=advanced&search=&offset=1&count=25&orderby=packagename", url);
   }
 
   @Test
@@ -22,7 +23,7 @@ public class PackagesFilterableUrlBuilderTest {
     String url = new PackagesFilterableUrlBuilder()
       .sort(Sort.NAME)
       .build();
-    assertEquals("selection=all&contenttype=all&search=&offset=1&count=25&orderby=packagename", url);
+    assertEquals("selection=all&contenttype=all&searchtype=advanced&search=&offset=1&count=25&orderby=packagename", url);
   }
 
   @Test
@@ -31,7 +32,7 @@ public class PackagesFilterableUrlBuilderTest {
       .filterSelected("orderedthroughebsco")
       .sort(Sort.NAME)
       .build();
-    assertEquals("selection=orderedthroughebsco&contenttype=all&search=&offset=1&count=25&orderby=packagename", url);
+    assertEquals("selection=orderedthroughebsco&contenttype=all&searchtype=advanced&search=&offset=1&count=25&orderby=packagename", url);
   }
 
   @Test
@@ -40,7 +41,7 @@ public class PackagesFilterableUrlBuilderTest {
       .filterType("abstractandindex")
       .sort(Sort.NAME)
       .build();
-    assertEquals("selection=all&contenttype=abstractandindex&search=&offset=1&count=25&orderby=packagename", url);
+    assertEquals("selection=all&contenttype=abstractandindex&searchtype=advanced&search=&offset=1&count=25&orderby=packagename", url);
   }
 
   @Test
@@ -48,7 +49,7 @@ public class PackagesFilterableUrlBuilderTest {
     String url = new PackagesFilterableUrlBuilder()
       .sort(Sort.NAME)
       .build();
-    assertEquals("selection=all&contenttype=all&search=&offset=1&count=25&orderby=packagename", url);
+    assertEquals("selection=all&contenttype=all&searchtype=advanced&search=&offset=1&count=25&orderby=packagename", url);
   }
 
   @Test
@@ -57,7 +58,7 @@ public class PackagesFilterableUrlBuilderTest {
       .count(5)
       .sort(Sort.NAME)
       .build();
-    assertEquals("selection=all&contenttype=all&search=&offset=1&count=5&orderby=packagename", url);
+    assertEquals("selection=all&contenttype=all&searchtype=advanced&search=&offset=1&count=5&orderby=packagename", url);
   }
 
   @Test
@@ -66,7 +67,7 @@ public class PackagesFilterableUrlBuilderTest {
       .q("Academic")
       .sort(Sort.RELEVANCE)
       .build();
-    assertEquals("selection=all&contenttype=all&search=Academic&offset=1&count=25&orderby=relevance", url);
+    assertEquals("selection=all&contenttype=all&searchtype=advanced&search=Academic&offset=1&count=25&orderby=relevance", url);
   }
 
   @Test
@@ -75,7 +76,7 @@ public class PackagesFilterableUrlBuilderTest {
       .page(2)
       .sort(Sort.NAME)
       .build();
-    assertEquals("selection=all&contenttype=all&search=&offset=2&count=25&orderby=packagename", url);
+    assertEquals("selection=all&contenttype=all&searchtype=advanced&search=&offset=2&count=25&orderby=packagename", url);
   }
 
   @Test
@@ -84,6 +85,6 @@ public class PackagesFilterableUrlBuilderTest {
       .q("ABC-CLIO")
       .sort(Sort.RELEVANCE)
       .build();
-    assertEquals("selection=all&contenttype=all&search=ABC-CLIO&offset=1&count=25&orderby=relevance", url);
+    assertEquals("selection=all&contenttype=all&searchtype=advanced&search=ABC-CLIO&offset=1&count=25&orderby=relevance", url);
   }
 }
