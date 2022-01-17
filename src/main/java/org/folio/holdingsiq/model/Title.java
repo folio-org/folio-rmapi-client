@@ -47,4 +47,7 @@ public class Title {
   @JsonProperty("customerResourcesList")
   private List<CustomerResources> customerResourcesList;
 
+  @JsonProperty("alternateTitleList")
+  private List<AlternateTitle> alternateTitleList;
+
 }
