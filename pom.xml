@@ -19,17 +19,17 @@
   </licenses>
 
   <properties>
-    <folio-service-tools.version>1.7.0</folio-service-tools.version>
-    <vertx.version>4.1.0.CR1</vertx.version>
-    <lombok.version>1.18.18</lombok.version>
-    <jackson.version>2.12.1</jackson.version>
+    <folio-service-tools.version>1.7.2</folio-service-tools.version>
+    <vertx.version>4.2.4</vertx.version>
+    <lombok.version>1.18.22</lombok.version>
+    <jackson.version>2.13.1</jackson.version>
     <commons-validator.version>1.7</commons-validator.version>
 
     <junit.version>4.13.2</junit.version>
-    <mockito.version>3.7.7</mockito.version>
+    <mockito.version>4.2.0</mockito.version>
     <wiremock.version>2.27.2</wiremock.version>
     <powermock.version>2.0.9</powermock.version>
-    <awaitility.version>4.0.3</awaitility.version>
+    <awaitility.version>4.1.1</awaitility.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
