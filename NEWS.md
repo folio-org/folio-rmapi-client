@@ -1,5 +1,6 @@
-## 2.0.0 xxxx-xx-xx
+## 2.0.0 2022-02-23
 * FHIQC-13 Update 'searchtype' for packages and titles endpoints
+* FHIQC-19 Upgrade to VertX 4.2.5
 
 ## 1.12.0 2021-06-09
 * FHIQC-10 Load Holdings: Refactor using of Vert.X WebClient
