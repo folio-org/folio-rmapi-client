@@ -19,21 +19,30 @@
   </licenses>
 
   <properties>
-    <folio-service-tools.version>1.8.0</folio-service-tools.version>
-    <vertx.version>4.2.5</vertx.version>
-    <lombok.version>1.18.22</lombok.version>
-    <jackson.version>2.13.1</jackson.version>
+    <folio-service-tools.version>1.9.0-SNAPSHOT</folio-service-tools.version>
+    <vertx.version>4.3.1</vertx.version>
+    <lombok.version>1.18.24</lombok.version>
+    <jackson.version>2.13.3</jackson.version>
     <commons-validator.version>1.7</commons-validator.version>
-    <log4j.version>2.17.1</log4j.version>
+    <log4j.version>2.17.2</log4j.version>
 
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+
+    <!-- Test dependencies versions   -->
     <junit.version>4.13.2</junit.version>
     <mockito.version>3.7.7</mockito.version>
     <wiremock.version>2.27.2</wiremock.version>
     <powermock.version>2.0.9</powermock.version>
-    <awaitility.version>4.1.1</awaitility.version>
+    <awaitility.version>4.2.0</awaitility.version>
 
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+    <!-- Plugin versions   -->
+
+    <versions-maven-plugin.version>2.11.0</versions-maven-plugin.version>
+    <maven-compiler-plugin.version>3.10.1</maven-compiler-plugin.version>
+    <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+    <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
+    <maven-release-plugin.version>3.0.0-M5</maven-release-plugin.version>
   </properties>
 
   <dependencyManagement>
@@ -77,6 +86,11 @@
     <dependency>
       <groupId>io.vertx</groupId>
       <artifactId>vertx-web-client</artifactId>
+      <version>${vertx.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.vertx</groupId>
+      <artifactId>vertx-core</artifactId>
       <version>${vertx.version}</version>
     </dependency>
     <dependency>
@@ -139,7 +153,7 @@
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>versions-maven-plugin</artifactId>
-        <version>2.8.1</version>
+        <version>${versions-maven-plugin.version}</version>
         <configuration>
           <generateBackupPoms>false</generateBackupPoms>
         </configuration>
@@ -148,7 +162,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.8.1</version>
+        <version>${maven-compiler-plugin.version}</version>
         <configuration>
           <release>11</release>
           <encoding>UTF-8</encoding>
@@ -158,7 +172,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
-        <version>3.2.1</version>
+        <version>${maven-source-plugin.version}</version>
         <executions>
           <execution>
             <id>attach-sources</id>
@@ -172,7 +186,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.0.0-M5</version>
+        <version>${maven-surefire-plugin.version}</version>
         <configuration>
          <useSystemClassLoader>false</useSystemClassLoader>
           <systemPropertyVariables>
@@ -186,7 +200,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-release-plugin</artifactId>
-        <version>3.0.0-M1</version>
+        <version>${maven-release-plugin.version}</version>
         <configuration>
           <preparationGoals>clean verify</preparationGoals>
           <tagNameFormat>v@{project.version}</tagNameFormat>

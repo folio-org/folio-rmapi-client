@@ -13,11 +13,6 @@ public class HoldingsInteractionContext {
   HttpRequest<?> request;
   HttpResponse<?> response;
 
-
-  public HttpMethod httpMethod() {
-    return ((HttpRequestImpl<?>) request).method();
-  }
-
   public String uri() {
     return ((HttpRequestImpl<?>) request).uri();
   }
