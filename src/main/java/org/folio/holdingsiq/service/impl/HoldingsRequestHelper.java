@@ -2,21 +2,10 @@ package org.folio.holdingsiq.service.impl;
 
 import static java.lang.String.format;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-
-import javax.ws.rs.core.HttpHeaders;
-
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
@@ -30,10 +19,17 @@ import io.vertx.ext.web.client.predicate.ErrorConverter;
 import io.vertx.ext.web.client.predicate.ResponsePredicate;
 import io.vertx.ext.web.client.predicate.ResponsePredicateResult;
 import io.vertx.ext.web.codec.BodyCodec;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import javax.ws.rs.core.HttpHeaders;
 import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.http.entity.ContentType;
-
 import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.service.exception.ResourceNotFoundException;
 import org.folio.holdingsiq.service.exception.ResultsProcessingException;
@@ -130,8 +126,7 @@ class HoldingsRequestHelper {
       int sc = ctx.statusCode();
 
       if (sc == 200 || sc == 201 || sc == 202 || sc == 204) {
-        log.info("[OK] RMAPI Service response: query = [{}], method = [{}], statusCode = [{}], body = [{}]",
-            ctx.uri(), ctx.httpMethod(), sc, body);
+        log.info("[OK] RMAPI Service response: query = [{}], statusCode = [{}], body = [{}]", ctx.uri(), sc, body);
       }
     };
   }
@@ -264,14 +259,13 @@ class HoldingsRequestHelper {
         if (ClientPhase.SEND_REQUEST == httpContext.phase()) {
           HttpRequestImpl<?> request = (HttpRequestImpl<?>) httpContext.request();
 
-          HttpMethod method = request.method();
           String uri = request.uri();
 
-          log.info("RMAPI Service {} absolute URL is: {}", method, uri);
+          log.info("RMAPI Service absolute URL is: {}", uri);
 
           Object requestBody = httpContext.body();
           if (requestBody != null) {
-            log.info("RMAPI Service {} body is: {}", method, requestBody);
+            log.info("RMAPI Service body is: {}", requestBody);
           }
         }
 

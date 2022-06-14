@@ -1,7 +1,6 @@
 package org.folio.holdingsiq.service.impl;
 
 import io.vertx.core.MultiMap;
-import io.vertx.core.http.HttpMethod;
 import io.vertx.ext.web.client.HttpRequest;
 import io.vertx.ext.web.client.HttpResponse;
 import io.vertx.ext.web.client.impl.HttpRequestImpl;
@@ -12,11 +11,6 @@ public class HoldingsInteractionContext {
 
   HttpRequest<?> request;
   HttpResponse<?> response;
-
-
-  public HttpMethod httpMethod() {
-    return ((HttpRequestImpl<?>) request).method();
-  }
 
   public String uri() {
     return ((HttpRequestImpl<?>) request).uri();
