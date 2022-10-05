@@ -1,3 +1,6 @@
+## 2.2.0 IN_PROGRESS
+* FHIQC-23 Upgrade to VertX 4.3.4
+
 ## 2.1.0 2022-06-17
 * FHIQC-19 Upgrade to VertX 4.3.1
 
