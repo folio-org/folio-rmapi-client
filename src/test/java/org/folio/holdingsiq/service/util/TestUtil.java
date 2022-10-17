@@ -2,7 +2,14 @@ package org.folio.holdingsiq.service.util;
 
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.http.HttpClientResponse;
+import org.folio.util.TokenUtils;
+import org.folio.util.UserInfo;
+import org.mockito.MockedStatic;
+import org.mockito.verification.VerificationMode;
 
+import java.util.concurrent.CompletableFuture;
+
+import static org.folio.holdingsiq.service.config.ConfigTestData.OKAPI_DATA;
 import static org.mockito.Mockito.when;
 
 public final class TestUtil {
@@ -24,5 +31,13 @@ public final class TestUtil {
 
     when(mockResponse.statusCode()).thenReturn(firstStatus).thenReturn(secondStatus);
     when(mockResponseBody.toString()).thenReturn(responseBody);
+  }
+
+  public static void mockUserInfo(MockedStatic<TokenUtils> tokenUtils, CompletableFuture<UserInfo> userInfoFuture) {
+    tokenUtils.when(() -> TokenUtils.fetchUserInfo(OKAPI_DATA.getApiToken())).thenReturn(userInfoFuture);
+  }
+
+  public static void verifyTokenUtils(MockedStatic<TokenUtils> tokenUtils, VerificationMode verificationMode) {
+    tokenUtils.verify(() -> TokenUtils.fetchUserInfo(OKAPI_DATA.getApiToken()), verificationMode);
   }
 }
