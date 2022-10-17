@@ -31,9 +31,8 @@
 
     <!-- Test dependencies versions   -->
     <junit.version>4.13.2</junit.version>
-    <mockito.version>3.12.4</mockito.version>
+    <mockito.version>4.8.0</mockito.version>
     <wiremock.version>2.27.2</wiremock.version>
-    <powermock.version>2.0.9</powermock.version>
     <awaitility.version>4.2.0</awaitility.version>
 
     <!-- Plugin versions   -->
@@ -123,20 +122,8 @@
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
-      <artifactId>mockito-core</artifactId>
+      <artifactId>mockito-inline</artifactId>
       <version>${mockito.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-module-junit4</artifactId>
-      <version>${powermock.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.powermock</groupId>
-      <artifactId>powermock-api-mockito2</artifactId>
-      <version>${powermock.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
