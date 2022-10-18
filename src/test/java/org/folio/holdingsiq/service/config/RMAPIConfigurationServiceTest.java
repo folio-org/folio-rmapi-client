@@ -10,10 +10,10 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.openMocks;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 import static org.folio.holdingsiq.service.config.ConfigTestData.OKAPI_DATA;
 import static org.folio.rest.RestVerticle.OKAPI_HEADER_TENANT;
@@ -33,22 +33,13 @@ import io.vertx.ext.web.client.WebClient;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.service.impl.ConfigurationServiceImpl;
 
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(WebClient.class)
-@PowerMockIgnore({"org.apache.logging.log4j.*"})
-// the above added due to the issue:
-// https://github.com/powermock/powermock/issues/861
 public class RMAPIConfigurationServiceTest {
 
   private static final String JSON_API_TYPE = "application/vnd.api+json";
@@ -74,10 +65,10 @@ public class RMAPIConfigurationServiceTest {
   public void setUp() throws Exception {
     openMocks(this).close();
 
-    mockStatic(WebClient.class);
-    when(WebClient.create(vertx)).thenReturn(webClient);
-
-    service = new ConfigurationServiceImpl(vertx);
+    try (var mocked = mockStatic(WebClient.class)) {
+      mocked.when(() -> WebClient.create(vertx)).thenReturn(webClient);
+      service = new ConfigurationServiceImpl(vertx);
+    }
   }
 
   @Test
@@ -161,7 +152,7 @@ public class RMAPIConfigurationServiceTest {
   }
 
   private static <T> HandlerAnswer<AsyncResult<HttpResponse<T>>, Void> httpResponseAnswer(
-      HttpResponse<T> httpResponse) {
+    HttpResponse<T> httpResponse) {
     AsyncResult<HttpResponse<T>> res = succeededFuture(httpResponse);
     return new HandlerAnswer<>(res, 0);
   }
