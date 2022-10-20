@@ -22,7 +22,7 @@
     <folio-service-tools.version>1.10.0</folio-service-tools.version>
     <vertx.version>4.3.4</vertx.version>
     <lombok.version>1.18.24</lombok.version>
-    <jackson.version>2.13.4</jackson.version>
+    <jackson.version>2.13.4.1</jackson.version>
     <commons-validator.version>1.7</commons-validator.version>
     <log4j.version>2.19.0</log4j.version>
 
