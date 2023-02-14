@@ -1,3 +1,11 @@
+## 2.3.0 2023-02-14
+### Dependencies
+* Bump `folio-service-tools` from `1.10.0` to `1.10.1`
+* Bump `vertx` from `4.3.4` to `4.3.8`
+* Bump `lombok` from `1.18.24` to `1.18.26`
+* Bump `jackson` from `2.13.4` to `2.14.2`
+* Bump `mockito` from `4.8.0` to `5.1.1`
+
 ## 2.2.0 2022-10-19
 * FHIQC-23 Upgrade to VertX 4.3.4
 * FHIQC-25 Remove usage of PowerMock
