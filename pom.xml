@@ -19,10 +19,10 @@
   </licenses>
 
   <properties>
-    <folio-service-tools.version>1.10.0</folio-service-tools.version>
-    <vertx.version>4.3.4</vertx.version>
-    <lombok.version>1.18.24</lombok.version>
-    <jackson.version>2.13.4</jackson.version>
+    <folio-service-tools.version>1.10.1</folio-service-tools.version>
+    <vertx.version>4.3.8</vertx.version>
+    <lombok.version>1.18.26</lombok.version>
+    <jackson.version>2.14.2</jackson.version>
     <commons-validator.version>1.7</commons-validator.version>
     <log4j.version>2.19.0</log4j.version>
 
@@ -31,7 +31,7 @@
 
     <!-- Test dependencies versions   -->
     <junit.version>4.13.2</junit.version>
-    <mockito.version>4.8.0</mockito.version>
+    <mockito.version>5.1.1</mockito.version>
     <wiremock.version>2.27.2</wiremock.version>
     <awaitility.version>4.2.0</awaitility.version>
 
