@@ -1,3 +1,12 @@
+## 2.4.0 2023-03-22
+* FHIQC-30 Update module to Java 17 & the latest dependencies
+
+### Plugins
+* Bump `maven-compiler-plugin` from `11` to `17`
+### Dependencies
+* Bump `log4j` from `2.19.0` to `2.20.0`
+* Bump `vertx` from `4.3.8` to `4.4.0`
+
 ## 2.3.0 2023-02-14
 ### Dependencies
 * Bump `folio-service-tools` from `1.10.0` to `1.10.1`

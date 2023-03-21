@@ -20,11 +20,11 @@
 
   <properties>
     <folio-service-tools.version>1.10.1</folio-service-tools.version>
-    <vertx.version>4.3.8</vertx.version>
+    <vertx.version>4.4.0</vertx.version>
     <lombok.version>1.18.26</lombok.version>
     <jackson.version>2.14.2</jackson.version>
     <commons-validator.version>1.7</commons-validator.version>
-    <log4j.version>2.19.0</log4j.version>
+    <log4j.version>2.20.0</log4j.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -150,7 +150,7 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <release>11</release>
+          <release>17</release>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
