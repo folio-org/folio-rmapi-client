@@ -3,7 +3,8 @@
 * Update module to Java 17 & the latest dependencies ([FHIQC-30](https://issues.folio.org/browse/FHIQC-30))
 
 ### Dependencies
-* Bump `maven-compiler-plugin` from `11` to `17`
+* Bump `java` from `11` to `17`
+* Bump `folio-service-tools` from `1.10.0` to `3.1.0-SNAPSHOT`
 * Bump `log4j` from `2.19.0` to `2.20.0`
 * Bump `vertx` from `4.3.8` to `4.4.0`
 
