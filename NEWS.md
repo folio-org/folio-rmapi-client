@@ -1,4 +1,4 @@
-## 2.4.0 2023-03-22
+## 3.0.0 in progress
 * FHIQC-30 Update module to Java 17 & the latest dependencies
 
 ### Plugins
