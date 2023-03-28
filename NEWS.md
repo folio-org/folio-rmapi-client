@@ -4,7 +4,7 @@
 
 ### Dependencies
 * Bump `java` from `11` to `17`
-* Bump `folio-service-tools` from `1.10.0` to `3.1.0-SNAPSHOT`
+* Bump `folio-service-tools` from `1.10.1` to `3.1.0-SNAPSHOT`
 * Bump `log4j` from `2.19.0` to `2.20.0`
 * Bump `vertx` from `4.3.8` to `4.4.0`
 
