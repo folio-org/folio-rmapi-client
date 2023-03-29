@@ -48,11 +48,12 @@ public class TitlesHoldingsIQServiceImpl implements TitlesHoldingsIQService {
   }
 
   @Override
-  public CompletableFuture<Titles> retrieveTitles(FilterQuery filterQuery, String searchType, Sort sort, int page,
-                                                  int count) {
+  public CompletableFuture<Titles> retrieveTitles(FilterQuery filterQuery, String searchType, String packageIds,
+                                                  Sort sort, int page, int count) {
     String query = new TitlesFilterableUrlBuilder()
       .filter(filterQuery)
       .searchType(searchType)
+      .packageIds(packageIds)
       .sort(sort)
       .page(page)
       .count(count)

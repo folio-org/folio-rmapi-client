@@ -29,6 +29,7 @@ public class HoldingsIQServiceTestConfig {
   protected static final String STUB_CUSTOMER_ID = "TEST_CUSTOMER_ID";
   protected static final String STUB_API_KEY = "test_key";
   protected static final String STUB_BASE_URL = "https://sandbox.ebsco.io";
+  protected static final String PACKAGE_IDS = "123,23";
   protected static final int PAGE_FOR_PARAM = 1;
   protected static final int COUNT_FOR_PARAM = 5;
   protected static final Long PACKAGE_ID = 2222L;
