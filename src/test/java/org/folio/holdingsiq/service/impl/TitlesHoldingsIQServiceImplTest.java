@@ -32,11 +32,12 @@ public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig
   public void testRetrieveTitles() {
     var urlPattern = new UrlPattern(equalTo(
       "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/titles?searchfield=titlename&selection=all&resourcetype=all&searchtype=" +
-        "advanced&search=&offset=1&count=5&orderby=titlename"), false);
+        "advanced&packageidfilter=123,23&search=&offset=1&count=5&orderby=titlename"), false);
     wiremockServer.stubFor(
       get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody(Json.encode(titles)))
     );
-    var completableFuture = service.retrieveTitles(filterQuery, null, Sort.NAME, PAGE_FOR_PARAM, COUNT_FOR_PARAM);
+    var completableFuture = service.retrieveTitles(filterQuery, null, PACKAGE_IDS,
+      Sort.NAME, PAGE_FOR_PARAM, COUNT_FOR_PARAM);
 
     assertTrue(isCompletedNormally(completableFuture));
     verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));

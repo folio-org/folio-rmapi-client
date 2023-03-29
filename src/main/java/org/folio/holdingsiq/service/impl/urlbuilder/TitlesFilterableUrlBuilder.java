@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.StringUtils.defaultString;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.folio.holdingsiq.model.FilterQuery;
 import org.folio.holdingsiq.model.Sort;
@@ -24,6 +25,7 @@ public class TitlesFilterableUrlBuilder {
   private int count = 25;
   private Sort sort;
   private String searchType;
+  private String packageIds;
 
   public TitlesFilterableUrlBuilder filter(FilterQuery filterQuery) {
     this.filterQuery = filterQuery;
@@ -32,6 +34,11 @@ public class TitlesFilterableUrlBuilder {
 
   public TitlesFilterableUrlBuilder searchType(String searchType) {
     this.searchType = searchType;
+    return this;
+  }
+
+  public TitlesFilterableUrlBuilder packageIds(String packageIds) {
+    this.packageIds = packageIds;
     return this;
   }
 
@@ -82,6 +89,7 @@ public class TitlesFilterableUrlBuilder {
     parameters.add("selection=" + defaultString(filterQuery.getSelected(), DEFAULT_SELECTION));
     parameters.add("resourcetype=" + defaultString(filterQuery.getType(), DEFAULT_RESOURCE_TYPE));
     parameters.add("searchtype=" + defaultString(searchType, DEFAULT_SEARCH_TYPE));
+    Optional.ofNullable(packageIds).ifPresent(ids -> parameters.add("packageidfilter=" + ids));
     parameters.add(query);
 
     return String.join("&", parameters);
