@@ -9,6 +9,8 @@ import org.folio.holdingsiq.model.FilterQuery;
 import org.folio.holdingsiq.model.Sort;
 import org.folio.holdingsiq.service.impl.urlbuilder.TitlesFilterableUrlBuilder;
 
+import java.util.List;
+
 public class TitlesFilterableUrlBuilderTest {
 
   private FilterQuery.FilterQueryBuilder fqb;
@@ -108,5 +110,15 @@ public class TitlesFilterableUrlBuilderTest {
       .build();
     assertEquals("searchfield=titlename&selection=all&resourcetype=all&searchtype=advanced&search=" +
       "&offset=1&count=25&orderby=titlename", url);
+  }
+
+  @Test
+  public void shouldBuildUrlPackageIdsFilter() {
+    String url = new TitlesFilterableUrlBuilder()
+      .filter(fqb.packageIds(List.of(123, 456)).build())
+      .sort(Sort.RELEVANCE)
+      .build();
+    assertEquals("searchfield=titlename&selection=all&resourcetype=all&searchtype=advanced&packageidfilter=123,456" +
+      "&search=&offset=1&count=25&orderby=titlename", url);
   }
 }
