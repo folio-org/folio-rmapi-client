@@ -1,23 +1,22 @@
 package org.folio.holdingsiq.service.impl;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
-import static org.junit.Assert.assertTrue;
-
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import org.apache.http.HttpStatus;
+import org.folio.holdingsiq.model.Sort;
+import org.folio.holdingsiq.service.TitlesHoldingsIQService;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.folio.holdingsiq.model.Sort;
-import org.folio.holdingsiq.service.TitlesHoldingsIQService;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static org.junit.Assert.assertTrue;
 
 public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
@@ -36,7 +35,7 @@ public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig
     wiremockServer.stubFor(
       get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody(Json.encode(titles)))
     );
-    var completableFuture = service.retrieveTitles(filterQuery, null, PACKAGE_IDS,
+    var completableFuture = service.retrieveTitles(filterQueryWithPackageIds, null,
       Sort.NAME, PAGE_FOR_PARAM, COUNT_FOR_PARAM);
 
     assertTrue(isCompletedNormally(completableFuture));

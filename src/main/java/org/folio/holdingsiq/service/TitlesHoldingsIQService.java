@@ -15,8 +15,7 @@ public interface TitlesHoldingsIQService {
 
   CompletableFuture<Titles> retrieveTitles(String rmapiQuery);
 
-  CompletableFuture<Titles> retrieveTitles(FilterQuery filterQuery, String searchType, String packageIds,
-                                           Sort sort, int page, int count);
+  CompletableFuture<Titles> retrieveTitles(FilterQuery filterQuery, String searchType, Sort sort, int page, int count);
 
   CompletableFuture<Titles> retrieveTitles(Long providerId, Long packageId, FilterQuery filterQuery, String searchType,
                                            Sort sort, int page, int count);

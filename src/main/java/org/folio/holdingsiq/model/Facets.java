@@ -13,5 +13,5 @@ import java.util.List;
 public class Facets {
 
   @JsonProperty("packages")
-  private List<FacetsModel> packages;
+  private List<PackageFacet> packages;
 }

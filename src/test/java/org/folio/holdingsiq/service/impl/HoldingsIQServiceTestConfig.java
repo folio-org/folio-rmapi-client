@@ -1,17 +1,8 @@
 package org.folio.holdingsiq.service.impl;
 
-import static org.awaitility.Awaitility.await;
-
-import java.util.Collections;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
-
 import com.github.tomakehurst.wiremock.common.Slf4jNotifier;
 import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockRule;
-import org.junit.After;
-import org.junit.Rule;
-
 import org.folio.holdingsiq.model.Configuration;
 import org.folio.holdingsiq.model.FilterQuery;
 import org.folio.holdingsiq.model.PackageCreated;
@@ -23,13 +14,21 @@ import org.folio.holdingsiq.model.TitleCreated;
 import org.folio.holdingsiq.model.TitlePost;
 import org.folio.holdingsiq.model.Titles;
 import org.folio.holdingsiq.model.VendorPut;
+import org.junit.After;
+import org.junit.Rule;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
+
+import static org.awaitility.Awaitility.await;
 
 public class HoldingsIQServiceTestConfig {
 
   protected static final String STUB_CUSTOMER_ID = "TEST_CUSTOMER_ID";
   protected static final String STUB_API_KEY = "test_key";
   protected static final String STUB_BASE_URL = "https://sandbox.ebsco.io";
-  protected static final String PACKAGE_IDS = "123,23";
   protected static final int PAGE_FOR_PARAM = 1;
   protected static final int COUNT_FOR_PARAM = 5;
   protected static final Long PACKAGE_ID = 2222L;
@@ -43,6 +42,7 @@ public class HoldingsIQServiceTestConfig {
       .notifier(new Slf4jNotifier(true)));
 
   protected FilterQuery filterQuery = FilterQuery.builder().build();
+  protected FilterQuery filterQueryWithPackageIds = FilterQuery.builder().packageIds(List.of(123,23)).build();
   protected VendorPut vendorPut = VendorPut.builder().build();
   protected ResourcePut resourcePut = ResourcePut.builder().build();
   protected PackagePost packagePost = PackagePost.builder().build();

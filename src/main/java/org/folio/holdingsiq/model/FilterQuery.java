@@ -3,6 +3,8 @@ package org.folio.holdingsiq.model;
 import lombok.Builder;
 import lombok.Value;
 
+import java.util.List;
+
 @Value
 @Builder(toBuilder = true)
 public class FilterQuery {
@@ -13,5 +15,6 @@ public class FilterQuery {
   private String isxn;
   private String subject;
   private String publisher;
+  private List<Integer> packageIds;
 
 }

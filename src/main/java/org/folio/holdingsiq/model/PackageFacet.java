@@ -8,7 +8,7 @@ import lombok.Value;
 @Value
 @Builder(toBuilder = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FacetsModel {
+public class PackageFacet {
 
   @JsonProperty("id")
   private Integer packageId;
