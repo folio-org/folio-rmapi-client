@@ -1,23 +1,22 @@
 package org.folio.holdingsiq.service.impl;
 
-import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
-import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
-import static com.github.tomakehurst.wiremock.client.WireMock.get;
-import static com.github.tomakehurst.wiremock.client.WireMock.post;
-import static com.github.tomakehurst.wiremock.client.WireMock.verify;
-import static org.junit.Assert.assertTrue;
-
 import com.github.tomakehurst.wiremock.http.RequestMethod;
 import com.github.tomakehurst.wiremock.matching.RequestPatternBuilder;
 import com.github.tomakehurst.wiremock.matching.UrlPattern;
 import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import org.apache.http.HttpStatus;
+import org.folio.holdingsiq.model.Sort;
+import org.folio.holdingsiq.service.TitlesHoldingsIQService;
 import org.junit.Before;
 import org.junit.Test;
 
-import org.folio.holdingsiq.model.Sort;
-import org.folio.holdingsiq.service.TitlesHoldingsIQService;
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
+import static com.github.tomakehurst.wiremock.client.WireMock.equalTo;
+import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.post;
+import static com.github.tomakehurst.wiremock.client.WireMock.verify;
+import static org.junit.Assert.assertTrue;
 
 public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig {
 
@@ -32,11 +31,12 @@ public class TitlesHoldingsIQServiceImplTest extends HoldingsIQServiceTestConfig
   public void testRetrieveTitles() {
     var urlPattern = new UrlPattern(equalTo(
       "/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/titles?searchfield=titlename&selection=all&resourcetype=all&searchtype=" +
-        "advanced&search=&offset=1&count=5&orderby=titlename"), false);
+        "advanced&packageidfilter=123,23&search=&offset=1&count=5&orderby=titlename"), false);
     wiremockServer.stubFor(
       get(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody(Json.encode(titles)))
     );
-    var completableFuture = service.retrieveTitles(filterQuery, null, Sort.NAME, PAGE_FOR_PARAM, COUNT_FOR_PARAM);
+    var completableFuture = service.retrieveTitles(filterQueryWithPackageIds, null,
+      Sort.NAME, PAGE_FOR_PARAM, COUNT_FOR_PARAM);
 
     assertTrue(isCompletedNormally(completableFuture));
     verify(new RequestPatternBuilder(RequestMethod.GET, urlPattern));

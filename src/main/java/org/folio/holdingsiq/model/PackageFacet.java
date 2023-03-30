@@ -1,7 +1,5 @@
 package org.folio.holdingsiq.model;
 
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
@@ -10,14 +8,14 @@ import lombok.Value;
 @Value
 @Builder(toBuilder = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Titles {
+public class PackageFacet {
 
-  @JsonProperty("titles")
-  private List<Title> titleList;
+  @JsonProperty("id")
+  private Integer packageId;
 
-  @JsonProperty("facets")
-  private Facets facets;
+  @JsonProperty("name")
+  private String packageName;
 
-  @JsonProperty("totalResults")
-  private Integer totalResults;
+  @JsonProperty("count")
+  private Integer totalCount;
 }
