@@ -15,4 +15,7 @@ public class Proxy {
   @JsonProperty("inherited")
   private Boolean inherited;
 
+  @JsonProperty("proxiedUrl")
+  private String proxiedUrl;
+
 }
