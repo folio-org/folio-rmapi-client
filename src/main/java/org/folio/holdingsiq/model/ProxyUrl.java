@@ -8,11 +8,12 @@ import lombok.Value;
 @Value
 @Builder(toBuilder = true)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class Proxy {
+public class ProxyUrl {
 
   @JsonProperty("id")
-  private String id;
+  String id;
   @JsonProperty("inherited")
-  private Boolean inherited;
-
+  Boolean inherited;
+  @JsonProperty("proxiedUrl")
+  String proxiedUrl;
 }

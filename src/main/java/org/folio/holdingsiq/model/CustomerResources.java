@@ -65,7 +65,7 @@ public class CustomerResources {
   private EmbargoPeriod customEmbargoPeriod;
 
   @JsonProperty("proxy")
-  private Proxy proxy;
+  private ProxyUrl proxy;
 
   @JsonProperty("url")
   private String url;
