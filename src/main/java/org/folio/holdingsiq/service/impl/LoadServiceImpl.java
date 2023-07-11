@@ -17,7 +17,7 @@ import org.folio.holdingsiq.service.LoadService;
 
 public class LoadServiceImpl implements LoadService {
 
-  private HoldingsRequestHelper holdingsRequestHelper;
+  private final HoldingsRequestHelper holdingsRequestHelper;
 
   public LoadServiceImpl(Configuration config, Vertx vertx) {
     this.holdingsRequestHelper = new HoldingsRequestHelper(config, vertx);
@@ -26,6 +26,12 @@ public class LoadServiceImpl implements LoadService {
   @Override
   public CompletableFuture<Void> populateHoldings() {
     return holdingsRequestHelper.postRequest(holdingsRequestHelper.constructURL("holdings"), String.class)
+      .thenAccept(response -> {});
+  }
+
+  @Override
+  public CompletableFuture<Void> populateHoldingsForce() {
+    return holdingsRequestHelper.postRequest(holdingsRequestHelper.constructURL("holdings?force=true"), String.class)
       .thenAccept(response -> {});
   }
 
