@@ -17,6 +17,10 @@ public interface LoadService {
    */
   CompletableFuture<Void> populateHoldings();
 
+  /**
+   * Populates holdings data to a staging area with force parameter
+   */
+  CompletableFuture<Void> populateHoldingsForce();
 
   /**
    * Create a new staging area and populate it with holdings data.
