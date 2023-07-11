@@ -49,6 +49,18 @@ public class LoadServiceImplTest extends HoldingsIQServiceTestConfig {
   }
 
   @Test
+  public void testPostHoldingsForce() {
+    var urlPattern = new UrlPattern(equalTo("/rm/rmaccounts/" + STUB_CUSTOMER_ID + "/holdings?force=true"), false);
+    wiremockServer.stubFor(
+      post(urlPattern).willReturn(aResponse().withStatus(HttpStatus.SC_ACCEPTED).withBody("{}"))
+    );
+    var completableFuture = service.populateHoldingsForce();
+
+    assertTrue(isCompletedNormally(completableFuture));
+    WireMock.verify(new RequestPatternBuilder(RequestMethod.POST, urlPattern));
+  }
+
+  @Test
   public void testPostHoldingsTransaction() throws ExecutionException, InterruptedException {
     TransactionId response = TransactionId.builder().transactionId(TRANSACTION_ID).build();
     var urlPattern =
