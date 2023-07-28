@@ -1,3 +1,6 @@
+## 2.3.1 2023-07-28
+* FHIQC-33 Use `force` parameter for creating a snapshot
+
 ## 2.3.0 2023-02-14
 ### Dependencies
 * Bump `folio-service-tools` from `1.10.0` to `1.10.1`
