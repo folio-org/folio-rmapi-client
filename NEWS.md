@@ -1,3 +1,21 @@
+## v3.1.0 In progress
+### Breaking changes
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### Features
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### Bug fixes
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### Tech Dept
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### Dependencies
+* Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`
+* Add `LIB_NAME` `VERSION`
+* Remove `LIB_NAME`
+
 ## 3.0.0 2023-10-11
 ### Breaking changes
 * Update module to Java 17 & the latest dependencies ([FHIQC-30](https://issues.folio.org/browse/FHIQC-30))
