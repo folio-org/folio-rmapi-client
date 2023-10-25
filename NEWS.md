@@ -1,12 +1,39 @@
-## 3.0.0 in progress
+## v3.1.0 In progress
+### Breaking changes
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### Features
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### Bug fixes
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### Tech Dept
+* Description ([ISSUE_NUMBER](https://issues.folio.org/browse/ISSUE_NUMBER))
+
+### Dependencies
+* Bump `LIB_NAME` from `OLD_VERSION` to `NEW_VERSION`
+* Add `LIB_NAME` `VERSION`
+* Remove `LIB_NAME`
+
+## 3.0.0 2023-10-11
 ### Breaking changes
 * Update module to Java 17 & the latest dependencies ([FHIQC-30](https://issues.folio.org/browse/FHIQC-30))
 
+### Features
+* Add packages facet to response and new packageidfilter filter for GET /eholdings/titles ([FHIQC-29](https://issues.folio.org/browse/FHIQC-29))
+* Update GET /eholdings/resources/resourceId to include proxiedUrl ([FHIQC-31](https://issues.folio.org/browse/FHIQC-31))
+
+### Bug fixes
+* Use the force parameter for creating a snapshot ([FHIQC-33](https://issues.folio.org/browse/FHIQC-33))
+
 ### Dependencies
 * Bump `java` from `11` to `17`
-* Bump `folio-service-tools` from `1.10.1` to `3.1.0-SNAPSHOT`
+* Bump `folio-service-tools` from `1.10.1` to `3.1.0`
+* Bump `vertx` from `4.3.8` to `4.4.6`
+* Bump `lombok` from `1.18.26` to `1.18.30`
+* Bump `jackson` from `2.14.2` to `2.15.2`
 * Bump `log4j` from `2.19.0` to `2.20.0`
-* Bump `vertx` from `4.3.8` to `4.4.0`
 
 ## 2.3.0 2023-02-14
 ### Dependencies

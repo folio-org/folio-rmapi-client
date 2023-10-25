@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
   <artifactId>folio-holdingsiq-client</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.1.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>folio-holdingsiq-client</name>
@@ -19,10 +19,10 @@
   </licenses>
 
   <properties>
-    <folio-service-tools.version>3.1.0-SNAPSHOT</folio-service-tools.version>
-    <vertx.version>4.4.0</vertx.version>
-    <lombok.version>1.18.26</lombok.version>
-    <jackson.version>2.14.2</jackson.version>
+    <folio-service-tools.version>3.1.0</folio-service-tools.version>
+    <vertx.version>4.4.6</vertx.version>
+    <lombok.version>1.18.30</lombok.version>
+    <jackson.version>2.15.2</jackson.version>
     <commons-validator.version>1.7</commons-validator.version>
     <log4j.version>2.20.0</log4j.version>
 
@@ -31,8 +31,8 @@
 
     <!-- Test dependencies versions   -->
     <junit.version>4.13.2</junit.version>
-    <mockito.version>5.1.1</mockito.version>
-    <wiremock.version>2.27.2</wiremock.version>
+    <mockito.version>5.2.0</mockito.version>
+    <wiremock.version>3.0.1</wiremock.version>
     <awaitility.version>4.2.0</awaitility.version>
 
     <!-- Plugin versions   -->
