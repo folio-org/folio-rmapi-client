@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-import javax.validation.ValidationException;
+import jakarta.validation.ValidationException;
 
 import org.folio.holdingsiq.model.Sort;
 

@@ -1,6 +1,6 @@
 package org.folio.holdingsiq.service.validator;
 
-import javax.validation.ValidationException;
+import jakarta.validation.ValidationException;
 
 import org.junit.Before;
 import org.junit.Test;
