@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.folio</groupId>
   <artifactId>folio-holdingsiq-client</artifactId>
-  <version>3.1.0-SNAPSHOT</version>
+  <version>3.2.0-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>folio-holdingsiq-client</name>
@@ -19,11 +19,10 @@
   </licenses>
 
   <properties>
-    <rmb.version>35.2.0</rmb.version>
-    <folio-service-tools.version>4.0.0-SNAPSHOT</folio-service-tools.version>
-    <vertx.version>4.5.4</vertx.version>
+    <folio-service-tools.version>4.0.0</folio-service-tools.version>
+    <vertx.version>4.5.5</vertx.version>
     <lombok.version>1.18.30</lombok.version>
-    <jackson.version>2.16.1</jackson.version>
+    <jackson.version>2.17.0</jackson.version>
     <commons-validator.version>1.8.0</commons-validator.version>
     <log4j.version>2.23.1</log4j.version>
 
@@ -34,7 +33,7 @@
     <junit.version>4.13.2</junit.version>
     <mockito.version>5.2.0</mockito.version>
     <wiremock.version>3.0.1</wiremock.version>
-    <awaitility.version>4.2.0</awaitility.version>
+    <awaitility.version>4.2.1</awaitility.version>
 
     <!-- Plugin versions   -->
     <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
@@ -61,18 +60,6 @@
       <groupId>org.folio</groupId>
       <artifactId>folio-service-tools-dev</artifactId>
       <version>${folio-service-tools.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.folio</groupId>
-          <artifactId>mod-configuration-client</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.folio</groupId>
-      <artifactId>domain-models-runtime</artifactId>
-      <version>${rmb.version}</version>
-      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
