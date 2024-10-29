@@ -1,3 +1,12 @@
+## v3.2.0 2024-10-29
+### Dependencies
+* Bump `folio-service-tools` from `4.0.0` to `4.1.0`
+* Bump `vertx` from `4.5.5` to `4.5.10`
+* Bump `lombok` from `1.18.30` to `1.18.34`
+* Bump `jackson` from `2.17.0` to `2.17.1`
+* Bump `commons-validator` from `1.8.0` to `1.9.0`
+* Bump `log4j` from `2.23.1` to `2.24.1`
+
 ## v3.1.0 2024-03-18
 ### Dependencies
 * Bump `folio-service-tools` from `3.1.0` to `4.0.0`
