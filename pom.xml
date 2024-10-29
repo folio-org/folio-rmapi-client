@@ -203,7 +203,7 @@
     <url>https://github.com/folio-org/folio-holdingsiq-client</url>
     <connection>scm:git:git://github.com/folio-org/folio-holdingsiq-client</connection>
     <developerConnection>scm:git:git@github.com:folio-org/folio-holdingsiq-client.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>release/v3.2</tag>
   </scm>
 
   <repositories>
