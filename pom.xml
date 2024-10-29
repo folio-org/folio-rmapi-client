@@ -19,7 +19,7 @@
   </licenses>
 
   <properties>
-    <folio-service-tools.version>4.1.0</folio-service-tools.version>
+    <folio-service-tools.version>4.2.0-SNAPSHOT</folio-service-tools.version>
     <vertx.version>4.5.10</vertx.version>
     <lombok.version>1.18.34</lombok.version>
     <jackson.version>2.18.1</jackson.version>
