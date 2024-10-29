@@ -19,10 +19,10 @@
   </licenses>
 
   <properties>
-    <folio-service-tools.version>4.1.0-SNAPSHOT</folio-service-tools.version>
+    <folio-service-tools.version>4.1.0</folio-service-tools.version>
     <vertx.version>4.5.10</vertx.version>
     <lombok.version>1.18.34</lombok.version>
-    <jackson.version>2.18.0</jackson.version>
+    <jackson.version>2.18.1</jackson.version>
     <commons-validator.version>1.9.0</commons-validator.version>
     <log4j.version>2.24.1</log4j.version>
 
@@ -37,8 +37,8 @@
 
     <!-- Plugin versions   -->
     <versions-maven-plugin.version>2.17.1</versions-maven-plugin.version>
-    <maven-compiler-plugin.version>3.12.1</maven-compiler-plugin.version>
-    <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+    <maven-compiler-plugin.version>3.13.0</maven-compiler-plugin.version>
+    <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
     <maven-surefire-plugin.version>3.5.1</maven-surefire-plugin.version>
     <maven-release-plugin.version>3.1.1</maven-release-plugin.version>
   </properties>
@@ -142,6 +142,7 @@
         <version>${versions-maven-plugin.version}</version>
         <configuration>
           <generateBackupPoms>false</generateBackupPoms>
+          <ignoredVersions>(?i).*-(alpha|beta|m|rc)(-?\d+)?</ignoredVersions>
         </configuration>
       </plugin>
 
